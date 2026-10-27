@@ -130,6 +130,37 @@ static void clear_audio() {
  memset(grains,0,sizeof grains);memset(repeats,0,sizeof repeats);
  memset(dcx,0,sizeof dcx);memset(dcy,0,sizeof dcy);feedback_lp=duckenv=grain_noise_smooth=grain_noise_lp=0;memset(seq_gate,0,sizeof seq_gate);record_mode=0;record_note=record_step=-1;
 }
+/* MARKOV DREAMS band layout: every kit loads as kick, snare, hat, bass, lead,
+ * chords on MD tracks 0-5, so the four track buttons always mean the same.
+ * Factory biomes order their tracks freely: matching tracks are moved into
+ * their slot, and a missing role borrows a spare track with a warm default
+ * tone. Runs once per kit load; never at audio rate. */
+static bool is_drum(int m){return m==MD_KICK||m==MD_SNARE||m==MD_HAT;}
+static void band_layout(md_patch &p) {
+ static const int8_t lead_pref[]={MD_VELVET_KEYS,MD_FM,MD_RINGS,MD_ELEMENTS,MD_MELLOW,MD_VA,MD_HARMONIC,MD_SATIN,MD_SPECTRAL,MD_CHOIR,MD_BREATH};
+ static const int8_t chord_pref[]={MD_CHOIR,MD_SATIN,MD_HARMONIC,MD_VA,MD_SPECTRAL,MD_BREATH,MD_MELLOW,MD_RINGS,MD_FM,MD_VELVET_KEYS,MD_ELEMENTS};
+ static const int16_t fallback_tone[6]={0,16,32,128,224,112}; /* Felt Foot, Brush Skin, Silk Hat, Velvet Foundation, Velvet Keys Hearth, Minor Cloud */
+ int from[6]={-1,-1,-1,-1,-1,-1};bool used[6]={};
+ for(int slot=0;slot<4;slot++){const int want=slot<3?slot:MD_BASS;for(int t=0;t<6&&from[slot]<0;t++)if(!used[t]&&p.track[t].model==want){from[slot]=t;used[t]=1;}}
+ for(int slot=5;slot>=4;slot--){const int8_t *pref=slot==5?chord_pref:lead_pref;const unsigned n=slot==5?sizeof chord_pref:sizeof lead_pref;
+  for(unsigned k=0;k<n&&from[slot]<0;k++)for(int t=0;t<6&&from[slot]<0;t++)if(!used[t]&&p.track[t].model==pref[k]){from[slot]=t;used[t]=1;}}
+ // Spare tracks fill what is left; the bass prefers the lowest melodic one.
+ if(from[3]<0){int best=-1;for(int t=0;t<6;t++)if(!used[t]&&(best<0||(is_drum(p.track[best].model)&&!is_drum(p.track[t].model))||(is_drum(p.track[best].model)==is_drum(p.track[t].model)&&p.track[t].note<p.track[best].note)))best=t;from[3]=best;used[best]=1;}
+ for(int slot=0;slot<6;slot++)for(int t=0;t<6&&from[slot]<0;t++)if(!used[t]){from[slot]=t;used[t]=1;}
+ const md_patch src=p;p.chord_tracks=0;p.edited_mask=src.edited_mask&1u;
+ for(int slot=0;slot<6;slot++){const int t=from[slot];
+  p.track[slot]=src.track[t];p.ext[slot]=src.ext[t];p.sequence[slot]=src.sequence[t];p.tone_preset[slot]=src.tone_preset[t];
+  p.chord_tracks|=((src.chord_tracks>>t)&1)<<slot;if(src.edited_mask&(2u<<t))p.edited_mask|=2u<<slot;
+  if(src.duck_source==t)p.duck_source=slot;
+  const int m=p.track[slot].model;
+  const bool fits=slot<3?m==slot:slot==3?m==MD_BASS:!is_drum(m);
+  if(!fits){const TonePreset &a=tone_bank[fallback_tone[slot]];md_track &d=p.track[slot];
+   d.model=a.model;d.tone=a.tone;d.harm=a.harm;d.decay=a.decay;d.attack=a.attack;d.shape=a.shape;
+   d.cutoff=a.cutoff;d.resonance=a.resonance;d.filter=a.filter;d.breathe=a.breathe;p.tone_preset[slot]=fallback_tone[slot];
+   if(slot==3)while(d.note>48)d.note-=12;
+  }
+ }
+}
 static void scene(int id) {
  id=bound(id,0,MD_BIOMES-1);
  patch=biome_bank[id].patch;extension_defaults(patch);
@@ -159,6 +190,7 @@ static void scene(int id) {
    for(int k=0;k<16;k++){int off=phrases[(id-77)%4][k];q.steps[k]={(uint8_t)(off<0?0:bound(md_quantize(patch.track[i].note+off,patch.root,patch.scale),24,96)),(uint8_t)(k==0?78:62+(k*3+id)%14),100,(uint8_t)(72+(k*7)%25)};}break;
   }
  }
+ band_layout(patch);
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
 }

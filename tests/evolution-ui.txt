@@ -1,15 +1,4 @@
 wait 3400
-tap FX
-expect page 3
-shot shared-grain.png
-spin SELECT 4
-spin K2 8
-press FX
-wait 900
-expect help 0
-release FX
-wait 120
-shot shared-grain-help.png
 tap HOME
 tap HOME
 tap SEQ
@@ -61,19 +50,6 @@ wait 900
 expect help_context 1
 release GLO
 tap HOME
-tap FX
-tap FX
-tap FX
-tap FX
-tap FX
-expect page 22
-spin K1 8
-wait 100
-shot cloud-air.png
-press FX
-wait 900
-expect help_context 1
-release FX
 tap HOME
 tap HOME
 spin PRESET 77

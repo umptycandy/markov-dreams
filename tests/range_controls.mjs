@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const root=new URL('../',import.meta.url);
-const source=fs.readFileSync(new URL('web/index.html',root),'utf8');
+const source=fs.readFileSync(new URL('web/legacy/mutable-dreams-1.2.html',root),'utf8');
 class Element extends EventTarget {
  constructor(){super();this.value='500';this.textContent='';this.classList={toggle(){}};this.style={};}
 }

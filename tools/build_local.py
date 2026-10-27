@@ -16,7 +16,7 @@ flags=['-O2','-ffp-contract=off','-DPLAT_HOST','-DTEST','-ffunction-sections','-
 if mode!='web' and sys.platform=='darwin':
  sdk=os.environ.get('SDKROOT','/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk')
  if Path(sdk).exists():flags+=['-isysroot',sdk]
-if san:flags+=['-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']
+if san:flags+=['-g','-fsanitize=address,undefined','-fno-sanitize=vptr','-fno-omit-frame-pointer']
 if mode=='web':flags+=['-DPLAT_WEB','-D_POSIX_C_SOURCE=200809L','-fvisibility=hidden']
 objs=[]
 for src in conf['o2']:

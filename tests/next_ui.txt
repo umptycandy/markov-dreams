@@ -36,32 +36,6 @@ spin K1 4
 spin K2 3
 wait 100
 shot phrase.png
-tap FX
-tap FX
-tap FX
-expect page 14
-spin K4 25
-wait 100
-shot space.png
-press FX
-wait 900
-expect help 0
-release FX
-tap HOME
-tap FX
-expect page 15
-spin K1 20
-spin K2 20
-spin K3 20
-spin K4 20
-wait 100
-shot modulation.png
-press FX
-wait 900
-expect help 0
-release FX
-wait 100
-shot modulation-help.png
 tap HOME
 expect help -1
 tap HOME

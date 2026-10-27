@@ -49,16 +49,25 @@ wait 20
 expect ratchet 3
 wait 100
 shot groove.png
+# FX SEL ENV LFO choose DRM BAS LED CHD; DRM again steps kick > snare > hat.
+tap ENV
+expect track 4
 tap FX
-wait 100
-shot grain.png
+expect track 0
 tap FX
-expect page 8
+expect track 1
+tap SEL
+expect track 3
+press FX
+wait 900
+expect help 0
+release FX
 wait 100
-shot tape.png
+shot drum-help.png
+tap HOME
 tap LFO
 wait 20
-expect freeze 1
+expect track 5
 press EDIT
 wait 900
 release EDIT
@@ -67,11 +76,12 @@ shot help.png
 expect help 4
 tap HOME
 expect help -1
+# SELECT is tempo now; ALGO keeps the chords track melodic.
 spin SELECT 5
 spin ALGO -7
 wait 20
 expect track 5
-expect model 0
+expect model 3
 tap GLO
 expect page 9
 spin K2 1

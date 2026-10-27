@@ -69,6 +69,14 @@ int main(){
   biome_hash[id]=h;
  }
  printf("PASS %d audible unique Biomes / 12 seconds each; Blank exactly silent\n",MD_BIOMES-1);
+ // MARKOV DREAMS: every kit loads as kick, snare, hat, bass, lead, chords.
+ for(int id=0;id<MD_BIOMES;id++){
+  md_init();md_command(MD_SCENE,0,id);const md_patch *q=md_state();
+  assert(q->track[0].model==MD_KICK&&q->track[1].model==MD_SNARE&&q->track[2].model==MD_HAT&&q->track[3].model==MD_BASS);
+  for(int t=4;t<6;t++)assert(q->track[t].model>MD_HAT);
+  assert(!(q->edited_mask&1)&&q->duck_source<6);
+ }
+ printf("PASS %d kits load in the band layout DRM x3 / BAS / LED / CHD\n",MD_BIOMES);
  for(int id=0;id<MD_TONE_PRESETS;id++){
   md_init();md_command(MD_SCENE,0,MD_BLANK_BIOME);render(1);md_track before=md_state()->track[0];md_command(MD_TONE_PRESET,0,id);render(1);const md_track &t=md_state()->track[0];
   assert(t.model==md_tone_model(id)&&md_state()->tone_preset[0]==id&&md_validate(md_state()));

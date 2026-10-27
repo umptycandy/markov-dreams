@@ -14,10 +14,13 @@ Misha is comfortable with HTML/JS but not deeply experienced with C/C++ or CLI t
   python3 -m pip install Pillow
   export WASI_SDK=/path/to/wasi-sdk   # wasi-sdk 27 worked; release used 34
   python3 tools/build_local.py web
-  python3 tools/package_web.py app/build/browser/Mutable-Dreams.html
+  python3 tools/package_web.py            # writes app/build/browser/index.html (one self-contained file)
   ```
-  Serve `app/build/browser/` over HTTP to test. Don't open `web/index.html` directly.
-- Native DSP checks: `python3 tools/build_local.py dsp --sanitize` then `app/build/san/dsp-tests`.
+  Serve `app/build/browser/` over HTTP to test. Don't open `web/index.html` directly (it is a template).
+  The page is the FM-1 panel simulator from fm1-base, relabelled. The old 1.2 release page is kept in `web/legacy/`.
+- Native DSP checks: `python3 tools/build_local.py dsp --sanitize` then `app/build/san/dsp-tests` (needs `libclang-rt-18-dev` on Ubuntu; the setup script installs it).
+- UI checks: `python3 tools/build_local.py host` then `app/build/native/mutable-dreams-host tests/ui.txt OUTDIR` (also `next_ui`, `mellow_ui`, `evolution-ui`, `landscape-ui`, `reactive-ui`). `shot FILE.png` lines save screenshots.
+- Published builds: `.github/workflows/browser-build.yml` builds every push into the `gh-pages` branch: `https://umptycandy.github.io/markov-dreams/builds/<branch>/`, and `main` is also the front page.
 - Device firmware: needs the JieLi Linux pi32v2 toolchain + AC79NN SDK V1.2.1 (see BUILDING.md). Plan: build it in **GitHub Actions on ubuntu** later, not now.
 - **Never remove the OTA/update path.** The FM-1 has no recovery button; firmware must stay re-flashable over USB MIDI SysEx.
 - CPU: the released build peaked at **88% load**. Do not add heavy DSP. The Markov brain is control logic only and must stay cheap.
@@ -37,7 +40,7 @@ Misha is comfortable with HTML/JS but not deeply experienced with C/C++ or CLI t
 | SEL | BAS | bass track |
 | ENV | LED | lead track |
 | LFO | CHD | chords track |
-Verify against how biomes assign models to tracks before committing to this mapping.
+Verified (step 1): factory biomes order their tracks freely (bass is usually track 1; only about 20 of 93 have kick/snare/hat in 0-2). So `band_layout()` in dreams.cpp reorders every kit on load into kick, snare, hat, bass, lead, chords, borrowing a spare track with a warm default tone when a role is missing. A DSP test checks all 93 kits.
 
 ### Controls
 - **PRESETS knob = KIT:** choose a biome (whole band).

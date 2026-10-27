@@ -1,0 +1,84 @@
+# Builds the browser player on every push and publishes it to GitHub Pages
+# (the gh-pages branch). Each branch gets its own link:
+#   https://<owner>.github.io/<repo>/builds/<branch>/
+# and the main branch is also the front page:
+#   https://<owner>.github.io/<repo>/
+name: Browser build
+
+on:
+  push:
+    branches-ignore: [gh-pages]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow
+        run: python -m pip install Pillow
+
+      - name: Cache WASI SDK
+        id: wasi
+        uses: actions/cache@v4
+        with:
+          path: ~/wasi-sdk
+          key: wasi-sdk-27.0
+
+      - name: Download WASI SDK
+        if: steps.wasi.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sdk-27.0-x86_64-linux.tar.gz | tar xz -C ~
+          mv ~/wasi-sdk-27.0-x86_64-linux ~/wasi-sdk
+
+      - name: Build browser player
+        run: |
+          export WASI_SDK=~/wasi-sdk
+          python tools/build_local.py web
+          python tools/package_web.py site/index.html
+
+      - name: Publish to gh-pages
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -e
+          safe=$(echo "$BRANCH" | tr '/' '-' | tr -cd 'A-Za-z0-9._-')
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
+            git clone --depth 1 --branch gh-pages "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" pages
+          else
+            mkdir pages && git -C pages init -b gh-pages
+            git -C pages remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          fi
+          mkdir -p "pages/builds/$safe"
+          cp site/index.html "pages/builds/$safe/index.html"
+          if [ "$BRANCH" = "${{ github.event.repository.default_branch }}" ]; then cp site/index.html pages/index.html; fi
+          touch pages/.nojekyll
+          # A simple list of every published build
+          {
+            echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            echo '<title>Markov Dreams builds</title><body style="font:18px system-ui;padding:16px;background:#faf4ec;color:#2c2030">'
+            echo '<h1>Markov Dreams builds</h1><ul>'
+            for d in pages/builds/*/; do n=$(basename "$d"); echo "<li><a href=\"$n/\">$n</a></li>"; done
+            echo "</ul><p>Updated $(date -u '+%Y-%m-%d %H:%M UTC')</p>"
+          } > pages/builds/index.html
+          # Until main has a build, the front page points at the list
+          [ -f pages/index.html ] || echo '<!doctype html><meta http-equiv="refresh" content="0;url=builds/"><a href="builds/">Builds</a>' > pages/index.html
+          cd pages
+          git add -A
+          git commit -m "Browser build for $BRANCH (${GITHUB_SHA::7})" || { echo "Nothing changed"; exit 0; }
+          git push origin gh-pages
+          echo "Published: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/builds/$safe/" >> "$GITHUB_STEP_SUMMARY"

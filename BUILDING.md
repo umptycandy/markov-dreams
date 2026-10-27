@@ -60,11 +60,11 @@ Install the WASI SDK separately; **34.0** was used for the release. Use the same
 ```sh
 export WASI_SDK=/absolute/path/to/wasi-sdk
 python tools/build_local.py web
-python tools/package_web.py app/build/browser/Mutable-Dreams.html
+python tools/package_web.py app/build/browser/index.html
 python -m http.server 8000 --directory app/build/browser
 ```
 
-Open `http://localhost:8000/Mutable-Dreams.html` in your browser. **Do not open or publish `web/index.html` directly:** the packager must embed WASM, the catalog, worklet and editor scripts. This is the source instrument build; separately hosted tutorial/installer/media files are not created by this command. The current public release website includes the documented browser packaging addendum.
+Open `http://localhost:8000/` in your browser. **Do not open or publish `web/index.html` directly:** the packager must embed the WASM firmware and the worklet. (Markov Dreams: the 1.2 release page is kept in `web/legacy/` and is no longer packaged.) This is the source instrument build; separately hosted tutorial/installer/media files are not created by this command. The current public release website includes the documented browser packaging addendum.
 
 The browser and firmware share application/DSP sources. Browser storage is separate from saved hardware banks. Web MIDI editing requires a compatible browser and explicit device connection.
 

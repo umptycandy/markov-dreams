@@ -1,150 +1,735 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mutable Dreams 1.2 · Play, shape, wander</title>
+<!doctype html>
+<!-- SPDX-License-Identifier: MPL-2.0
+     Copyright (C) 2026 Charles Vestal
+     Adapted from fm1-base web/emu/index.html for MARKOV DREAMS (GPL-3.0-only combined work):
+     relabelled panel, one self-contained file (firmware and worklet embedded by tools/package_web.py). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markov Dreams in the browser</title>
+<meta name="description" content="Markov Dreams for the M-VAVE FM-1, in the browser: the same code the FM-1 runs.">
+<meta name="theme-color" content="#100b14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
 <style>
-:root{--paper:#f2eee5;--ink:#27313c;--muted:#68727a;--coral:#d98275;--sage:#80aa98;--line:#d8d7cf}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px system-ui,sans-serif}button,select,input{font:inherit}button,select{cursor:pointer}button{border:1px solid var(--line);background:transparent;color:inherit;border-radius:7px;padding:10px 14px}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--coral);outline-offset:4px}button:hover{background:#e7e2d8}button:disabled{opacity:.45;cursor:wait}main{max-width:1180px;padding:28px 34px 45px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:18px;font-size:11px;letter-spacing:.14em}header span:last-child{color:var(--muted)}.hero{overflow:hidden;display:flex;justify-content:space-between;gap:30px;align-items:center;padding:35px 0 25px}.hero h1{font-size:clamp(38px,5.8vw,72px);font-weight:480;letter-spacing:-.065em;line-height:.95;margin:9px 0 20px}.hero p{max-width:540px;line-height:1.7;color:var(--muted);margin:0}.eyebrow{font-size:11px;letter-spacing:.19em;color:#a45e58}.flower{width:180px;height:180px;flex-shrink:0}.toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:5px 0 22px}.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}.primary:hover{background:#3b4959}.toolbar select{background:transparent;padding:11px;border:1px solid var(--line);border-radius:7px;color:inherit}.status{font-size:12px;color:var(--muted);margin-left:auto}.tracks{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0 20px}.track{border:1px solid var(--line);border-top:3px solid var(--color);border-radius:7px;padding:12px 10px;background:#f8f5ef;min-width:0}.track.active{outline:2px solid var(--ink);outline-offset:1px}.track-top{display:flex;align-items:center;gap:8px}.track-top button{padding:0;border:0;font-size:12px;font-weight:600;text-align:left;flex:1}.track small{color:var(--muted);font-size:10px}.track select{font-size:12px;width:100%;border:0;border-top:1px solid var(--line);background:transparent;margin-top:11px;padding:10px 0 2px;color:inherit}.instrument{background:#27313c;color:#eee7d9;border-radius:18px;padding:20px 26px 24px;box-shadow:0 17px 30px #27313c15}.instrument-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.16em;color:#b3bec2;padding:0 0 18px;border-bottom:1px solid #ffffff20}.body{display:grid;grid-template-columns:262px 1fr;gap:28px;padding-top:22px}.screen{width:240px;height:240px;display:block;image-rendering:auto;border-radius:5px;background:#101b27}.screen-wrap{padding:10px;background:#17212b;border-radius:11px;align-self:start}.screen-label{font-size:10px;text-align:center;color:#9eacb6;letter-spacing:.13em;margin:12px 0 2px}.pages{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}.instrument button{border-color:#ffffff25;font-size:12px;padding:7px 10px}.instrument button:hover{background:#ffffff12}.instrument button.active{color:#232c37;background:#eee7d9}.macro-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.macro{padding:16px 14px;background:#ffffff07;border:1px solid #ffffff10;border-radius:9px;min-width:0}.macro header{border:0;padding:0;letter-spacing:.08em;font-size:10px}.macro output{font-size:26px;letter-spacing:-.04em;display:block;margin:6px 0 8px}.macro input{width:100%;accent-color:var(--color)}.macro small{display:block;color:#a7b2ba;font-size:11px;margin-top:8px;line-height:1.4;min-height:30px}.performance{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.subcontrols{display:flex;gap:8px;align-items:center;margin-top:18px;flex-wrap:wrap;font-size:11px;color:#bdc8cc}.subcontrols input{accent-color:#9ec6b4;width:100px}.keys{display:grid;grid-template-columns:repeat(16,1fr);gap:4px;margin-top:22px}.keys button{background:#eae4d8;color:#27313c;height:48px;padding:0;border-radius:3px 3px 7px 7px;font-size:10px}.keys button:active{background:#d98275}.footer-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:25px;margin-top:31px}.footer-grid h2{font-size:12px;margin:0 0 10px;letter-spacing:.08em}.footer-grid p{font-size:12px;line-height:1.7;color:var(--muted);margin:0}.tiny{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:10px;line-height:1.6;color:var(--muted)}#notice{min-height:18px;font-size:12px;color:#a45e58;margin:8px 0}.note{margin-top:14px;font-size:11px;color:#a8b6be;line-height:1.5}.save-state{color:var(--sage)}@media(max-width:760px){main{padding:20px 18px}.flower{width:100px;height:100px}.hero{gap:12px}.tracks{grid-template-columns:repeat(3,1fr)}.instrument{padding:18px}.body{grid-template-columns:1fr;gap:22px}.screen-wrap{justify-self:center}.footer-grid{grid-template-columns:1fr;gap:20px}.status{margin-left:0;flex-basis:100%}.keys{gap:2px}.keys button{height:38px}.hero p{font-size:13px}.hero h1{font-size:48px}.macro{padding:13px 10px}.instrument-head{font-size:9px}}@media(prefers-reduced-motion:no-preference){button{transition:background .15s}}
-body{background:radial-gradient(ellipse at 90% 4%,#f2d5c34a,transparent 35%),radial-gradient(ellipse at 0% 45%,#bad6c44a,transparent 38%),var(--paper)}.track{border-radius:18px 18px 9px 9px}.macro{border-radius:19px 7px 19px 7px}.instrument{border:1px solid #556a6933;background:radial-gradient(ellipse at 5% 10%,#334c48,#27313c 60%)}.flower{filter:drop-shadow(0 7px 8px #d9827520)}.hero .eyebrow:before{content:'✳ ';font-size:19px;color:#80aa98}@media(prefers-reduced-motion:no-preference){.flower{animation:bloom 70s linear infinite}@keyframes bloom{to{transform:rotate(360deg)}}}
-/* Biome Atlas: contour lines, seed shapes and a quiet editorial structure. */
-main{max-width:1320px;padding:27px 42px 60px}header{letter-spacing:.16em}.hero{padding:38px 0 30px;min-height:290px}.hero h1{font-family:Georgia,serif;font-style:italic;font-size:clamp(66px,7.7vw,106px);font-weight:400;letter-spacing:-.075em;line-height:.88;margin:18px 0 22px}.hero p{font-size:15px;line-height:1.7}.emblem{width:280px;text-align:center;flex-shrink:0}.flower{width:260px;height:260px;animation:none!important}.emblem>span{display:block;font:italic 12px Georgia,serif;letter-spacing:.04em;color:#8b8f77;margin-top:-7px}.petals,.satellites,.contours{transform-origin:130px 130px}.toolbar{border-top:1px solid var(--line);padding-top:20px;margin-bottom:25px}.toolbar button,.toolbar select,.atlas-tools button,.atlas-tools input,.atlas-tools select{border-radius:24px;padding:11px 18px}.atlas{border:1px solid #cacfc3;border-radius:29px 11px 29px 11px;background:#f8f7efb0;padding:19px 22px;margin-bottom:30px}.atlas summary{display:flex;gap:20px;align-items:center;cursor:pointer;list-style:none}.atlas summary>span:first-child{font-size:10px;letter-spacing:.14em;color:#7b8979}.atlas summary strong{font:italic 26px Georgia,serif;font-weight:400}.atlas-count{font-size:11px;color:var(--muted);margin-left:auto}.atlas-tools{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 13px}.atlas-tools input{background:#fff9;border:1px solid var(--line);color:inherit;min-width:120px;flex:1}.atlas-tools select{background:transparent;color:inherit;border:1px solid var(--line);max-width:100%}.biome-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:254px;overflow:auto;padding:3px}.biome-card{display:flex;gap:11px;align-items:center;border:1px solid #d9dbce;padding:13px 10px;text-align:left;border-radius:15px 6px 15px 6px;min-height:68px;background:#faf8f3}.biome-card.selected{border-color:#688e77;background:#e6eee4}.biome-glyph{font-size:30px;color:var(--biome-color);min-width:29px;font-weight:300}.biome-card strong{font-size:12px;font-weight:550;display:block}.biome-card small{font-size:9px;line-height:1.5;color:var(--muted);display:block;margin-top:4px}.biome-number{margin-left:auto;font-size:9px;align-self:start;color:#8c9589}.atlas-hint{font-size:10px;color:#747d75;margin:15px 0 0;line-height:1.5}.section-label{display:flex;justify-content:space-between;gap:12px;font-size:10px;letter-spacing:.12em;color:#7b8979;margin-bottom:12px}.section-label span:last-child{letter-spacing:0}.tracks{gap:10px;margin-bottom:27px}.track{border-top-width:1px;border-radius:25px 8px 25px 8px;padding:16px 12px;background:linear-gradient(155deg,#fff9,#f6f3e9);position:relative}.track.active{outline-color:#5c7e6b}.track-top button{font:italic 27px Georgia,serif}.track-top small{font:8px system-ui;letter-spacing:.1em}.seed-dot{width:9px;height:14px;border-radius:80% 20% 80% 20%;background:var(--color);transform:rotate(25deg)}.voice-label{display:block;font-size:8px;color:#899084;letter-spacing:.1em;margin-top:14px}.track select{font-size:11px;margin:4px 0 0;padding:5px 0;border:0;letter-spacing:0;min-width:0;text-overflow:ellipsis}.engine-label{border-top:1px solid #dddccf;padding-top:10px;margin-top:11px}.engine-label select{font-size:10px;color:#758071}.voice-state{font-size:9px;margin-top:10px;color:#8b9485}.instrument{border-radius:40px 12px 40px 12px;background:radial-gradient(ellipse at 0 0,#425f53,#273b38 45%,#25313b);padding:24px 30px 28px}.screen-wrap{border-radius:28px 7px 28px 7px;padding:12px;background:#162923;box-shadow:inset 0 0 0 1px #ffffff12}.screen{border-radius:18px 4px 18px 4px}.macro{border-radius:27px 7px 27px 7px;background:linear-gradient(120deg,#ffffff0c,#ffffff02);position:relative;overflow:hidden}.macro:after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;border:1px solid #ffffff09;border-radius:44% 56% 31% 69%;pointer-events:none}.macro output{font:italic 29px Georgia,serif}.instrument .pages button{border-radius:14px 5px 14px 5px}.instrument-head{font-size:10px}.keys button:nth-child(3n){border-radius:3px 3px 15px 4px}.footer-grid{gap:36px}.footer-grid h2{font:italic 22px Georgia,serif;letter-spacing:-.03em;font-weight:400}.tiny{font-size:10px}.no-results{font-size:12px;grid-column:1/-1}.still *{animation:none!important}
-@media(prefers-reduced-motion:no-preference){.petals{animation:unfold 32s ease-in-out infinite alternate}.satellites{animation:orbit 70s linear infinite}.contours{animation:breathe 12s ease-in-out infinite}.seed-dot{animation:seed 6s ease-in-out infinite}.track:nth-child(2n) .seed-dot{animation-delay:-3s}@keyframes unfold{to{transform:rotate(24deg) scale(.94)}}@keyframes orbit{to{transform:rotate(360deg)}}@keyframes breathe{50%{opacity:.18;transform:scale(.97)}}@keyframes seed{50%{transform:rotate(35deg) scale(.85)}}}
-@media(max-width:1000px){.biome-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tracks{grid-template-columns:repeat(3,1fr)}.hero h1{font-size:78px}}@media(max-width:760px){main{padding:20px 18px 40px}.hero{min-height:220px;gap:10px;padding:28px 0}.hero h1{font-size:64px}.hero p{font-size:12px}.emblem{width:110px}.flower{width:115px;height:224px}.emblem>span{display:none}.atlas{padding:16px 13px}.atlas summary{flex-wrap:wrap;gap:8px 15px}.atlas summary strong{font-size:24px}.atlas-count{margin-left:0;flex-basis:100%}.biome-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:230px}.biome-card{padding:10px 7px;gap:6px}.biome-glyph{font-size:22px;min-width:20px}.biome-card strong{font-size:11px}.biome-number{display:none}.atlas-tools{gap:7px}.atlas-tools select{flex:1;width:150px}.atlas-tools input{flex-basis:100%}.track{padding:12px 8px}.track-top button{font-size:23px}.track-top small{display:none}.section-label{font-size:9px}.section-label span:last-child{max-width:145px;text-align:right}.instrument{padding:18px 13px;border-radius:29px 9px}.instrument-head{font-size:9px;letter-spacing:.06em}.macro output{font-size:26px}.keys{margin-top:17px}}
-a{color:#547b67;text-underline-offset:4px}.roots{display:grid;grid-template-columns:1fr 1.25fr;gap:60px;border-top:1px solid #c9cec0;margin-top:42px;padding:38px 0 10px}.roots h2{font:italic 39px/1.15 Georgia,serif;letter-spacing:-.045em;font-weight:400;margin:18px 0}.roots p{font-size:13px;line-height:1.85;color:#66726a;margin:0 0 16px}.roots strong{font-weight:600;color:#354e40}.roots nav{display:flex;flex-wrap:wrap;gap:15px;font-size:11px;line-height:1.7;margin:22px 0}.roots .credits-note{font-size:11px}.tiny a{display:inline-block}@media(max-width:760px){.roots{grid-template-columns:1fr;gap:8px;margin-top:30px;padding-top:25px}.roots h2{font-size:32px}}
-
-.keyboard-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;font-size:10px;letter-spacing:.08em;color:#bdc8cc}.keyboard-head output{padding:0 8px;letter-spacing:0}.keys{position:relative;display:block;height:85px;margin-top:12px}.keys button{position:absolute;bottom:0;height:85px;border:2px solid #273b38;border-radius:3px 3px 10px 10px!important;padding:0 0 9px;display:flex;align-items:flex-end;justify-content:center}.keys .black{width:3.6%;height:52px;top:0;z-index:1;background:#152823;color:#d8e4dc;font-size:8px;border-radius:2px 2px 6px 6px!important}.keys .pressed{background:#d98275}.release-links{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 24px;font-size:12px}.release-links a{border:1px solid #cbd3c5;border-radius:24px;padding:10px 17px;text-decoration:none}.watch{margin-top:38px;border-top:1px solid var(--line);padding-top:25px}.watch h2{font:italic 32px Georgia,serif;font-weight:400;margin:12px 0}.watch p{font-size:13px;color:var(--muted);line-height:1.7}.watch video{width:100%;max-height:660px;display:block;background:#273b38;border-radius:26px 8px 26px 8px}.watch a{font-size:12px}@media(max-width:760px){.keyboard-head{font-size:8px}.keyboard-head output{padding:0 2px}.keyboard-head button{padding:7px}.keys,.keys button{height:68px}.keys .black{height:43px}.keys button{font-size:8px}}
-
-html{scroll-behavior:smooth}#editor,#install,#tutorial{scroll-margin-top:24px}.patch-library{border:1px solid #cbd3c5;border-radius:28px 9px 28px 9px;padding:23px 27px;background:#f7f5ed;display:grid;grid-template-columns:1fr auto;gap:10px 26px;margin-bottom:22px}.patch-library h2{font:italic 29px Georgia,serif;margin:0 0 8px;color:#354e40}.patch-library p{font-size:12px;line-height:1.7;margin:0;color:#627469}.patch-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.patch-library .patch-note,.patch-library #patch-status{grid-column:1/-1}.patch-library #patch-status{color:#a45e58;min-height:20px}.patch-note{font-size:11px!important;line-height:1.75;color:#68776c}.typing{display:block;margin-top:14px;font-size:11px;line-height:1.7;color:#bdc8cc}.typing input{accent-color:#a4b99b;vertical-align:middle}.chapters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.chapters button{text-align:left;font-size:12px;border-radius:22px;padding:11px 16px}.chapters span{color:#a45e58;margin-right:10px;font-variant-numeric:tabular-nums}.install-section{border-top:1px solid var(--line);padding-top:35px;margin-top:45px}.install-section h2{font:italic 36px Georgia,serif;color:#354e40;margin:14px 0 27px}.install-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.install-cards article{padding:23px;border:1px solid #cbd3c5;border-radius:28px 8px 28px 8px;background:#e5e9dc66}.install-cards span{font-size:10px;letter-spacing:.13em;color:#9b6759}.install-cards h3{font:22px Georgia,serif;font-weight:400;color:#354e40}.install-cards p{font-size:12px;line-height:1.8;color:#627469}.install-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;line-height:1.8}.install-actions a{padding:12px 18px;border:1px solid #cbd3c5;border-radius:25px;text-decoration:none}.install-actions .primary{color:#f2eee5}@media(max-width:760px){.patch-library{grid-template-columns:1fr;padding:20px}.patch-actions{grid-column:1}.chapters{grid-template-columns:1fr 1fr}.install-cards{grid-template-columns:1fr}.install-section h2{font-size:30px}.typing{font-size:10px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-.macro{background:linear-gradient(145deg,#ffffff09,#ffffff02);border-radius:24px 12px 25px 13px;border-color:#ffffff25}.instrument{border-radius:34px 18px 36px 20px}.screen-wrap{border:1px solid #ffffff25}.track{border-radius:17px 7px 19px 8px}.macro small{color:#d6dfdc}.instrument .pages button{border-radius:16px 6px 16px 6px}/* Luminous 1.2 preview: accents stay behind controls; no animation loop added. */
-.instrument{box-shadow:0 18px 60px #173b3224,inset 0 0 0 1px #b8ead535;color:#fffdf3;background-color:#152c32}
-.instrument .macro{background:linear-gradient(130deg,#c7f8df16,#b7d6ff07);border:1px solid #d6eee02b}
-.instrument .macro header,.instrument .macro small,.instrument-head{color:#e2ece9}
-.instrument .macro output{color:#fffdf3;font-weight:500}
-.instrument .pages button{color:#e2ece9;border-color:#b9d6ca40}
-.instrument .pages button.active{color:#142b29;background:#b9edcf;border-color:#d9ffe5}
-.screen-wrap{box-shadow:0 0 28px #97edcd16,inset 0 0 0 1px #caffdf40}
-.instrument input[type=range]{accent-color:#b5f3d1}
-.instrument{background-repeat:no-repeat;transition:background-size .4s ease,background-position .4s ease}
-@media(prefers-reduced-motion:reduce){.instrument{transition:none}}
+/* light: --muted, --accent and --teal darkened just enough for 4.5:1 on the cream */
+:root { --ground: #faf4ec; --ink: #2c2030; --muted: #66556a; --rule: #e6dbe0; --accent: #b0521c; --teal: #1b776e; --card: #fffaf4;
+        --bad: #a3271b; --focus: #1f6fd1; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ground: #1c1814; --ink: #f2e8d8; --muted: #b3a28e; --rule: #3a322a; --accent: #f28a5a; --teal: #4cc3b6; --card: #26201b; --bad: #ff8a73; --focus: #79adff; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --ground: #1c1814; --ink: #f2e8d8; --muted: #b3a28e; --rule: #3a322a; --accent: #f28a5a; --teal: #4cc3b6; --card: #26201b; --bad: #ff8a73; --focus: #79adff; color-scheme: dark; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 28px 48px;
+       font: 400 16px/1.55 "Barlow", "Helvetica Neue", Arial, sans-serif; }
+main, body > header { max-width: 1040px; margin: 0 auto; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1.2rem; margin: 0 0 1rem; }
+h1 { font: 700 2rem/1.1 "Barlow Semi Condensed", "Barlow", sans-serif; margin: 0; }
+header p { margin: 0; color: var(--muted); }
+header nav { margin-left: auto; display: flex; gap: 1rem; }
+a { color: var(--accent); }
+/* at phone width the drawn panel keeps its controls 24 px or more (WCAG 2.5.8): it keeps a minimum width and
+   scrolls sideways in its own box, not the page */
+.devicebox { overflow-x: auto; overscroll-behavior-x: contain; }
+.device { position: relative; width: 100%; min-width: 560px; aspect-ratio: 1000 / 640; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.device svg { pointer-events: none; }
+.hit { position: absolute; touch-action: none; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 12px; }
+.hit.knob { cursor: ns-resize; border-radius: 50%; }
+.hit:focus-visible { outline: 3px solid #ffb48a; outline-offset: 2px; box-shadow: 0 0 0 6px #1b1d20; }
+.device svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.device canvas { position: absolute; left: 31.8%; top: 9.6875%; width: 20%; height: 31.25%; background: #000; border-radius: 2px; }
+.ctl { cursor: pointer; }
+.ctl.knob { cursor: ns-resize; }
+.btnface { transition: fill .06s; }
+.lit .btnface { fill: #f28a5a; }
+.lit text.btn { fill: #2a140a; }
+.held .btnface, .held .keyface { stroke: #f28a5a; stroke-width: 3; }
+.latched .btnface, .latched .keyface { stroke: #6fc3ff; stroke-width: 3; }
+.keyface { transition: fill .06s; }
+.lit .keyface.white { fill: #f6b48e; }
+.lit .keyface.black { fill: #4cc3b6; }
+.start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 11, 13, .55); border-radius: 4.4% / 6.9%; }
+.start button { font: 600 1.25rem "Barlow Semi Condensed", "Barlow", sans-serif; letter-spacing: .04em; padding: .7em 1.6em;
+                border-radius: 999px; border: 0; background: #f28a5a; color: #2a140a; cursor: pointer; }
+.start[hidden] { display: none; }
+.turn { display: none; margin: 0 0 .8rem; color: var(--muted); font-size: .92rem; }
+@media (orientation: portrait) and (max-width: 700px) { .turn { display: block; } }
+.start button:disabled { opacity: .6; cursor: progress; }
+.bar { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; margin: .9rem 0 0; color: var(--muted); font-size: .92rem; }
+.bar button, .speak button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--muted); border-radius: 8px; padding: .3em .8em; cursor: pointer; min-height: 2.2em; }
+.bar button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.speak button:disabled { opacity: .5; cursor: default; }
+#alert { color: var(--bad); font-weight: 600; flex-basis: 100%; }
+#alert:empty { display: none; }
+.speak { margin: 1.4rem 0 0; padding: 1rem 1.2rem; background: var(--card); border: 1px solid var(--rule); border-radius: 14px; }
+.speak summary { cursor: pointer; }
+.speak summary h2 { display: inline; font: 600 1.1rem "Barlow Semi Condensed", "Barlow", sans-serif; margin: 0; }
+.speak[open] summary { margin: 0 0 .6rem; }
+.bar .keys { display: inline-flex; gap: .4rem; align-items: center; }
+.speak fieldset { border: 0; margin: 0 0 .6rem; padding: 0; display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; }
+.speak legend { font-weight: 600; padding: 0; margin: 0 0 .3rem; }
+.speak label { display: inline-flex; gap: .45rem; align-items: center; }
+.speak input { width: 1.1rem; height: 1.1rem; accent-color: var(--teal); }
+.speak .row { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; margin: .6rem 0 0; }
+#said { font-size: 1.25rem; margin: .2rem 0 0; min-height: 1.6em; overflow-wrap: anywhere; }
+#said:empty::before { content: "Nothing yet."; color: var(--muted); font-size: 1rem; }
+.speak p.note { color: var(--muted); margin: .4rem 0 0; font-size: .92rem; }
+@media (prefers-reduced-motion: reduce) { .btnface, .keyface { transition: none; } }
+.bar .cpu { font-variant-numeric: tabular-nums; }
+.help h2 { font: 600 1.1rem "Barlow Semi Condensed", "Barlow", sans-serif; margin: 0 0 .3rem; }
+.help { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem 2rem; margin: 1.6rem 0 0; }
+.help h2 { font: 600 1.1rem "Barlow Semi Condensed", "Barlow", sans-serif; margin: 0 0 .3rem; }
+.help p, .help ul { margin: 0; max-width: 60ch; }
+.help ul { padding-left: 1.1rem; }
+kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 0 .3em; color: var(--ink); }
 </style>
-<main><p style="padding:16px;background:#e9d6bd;border-radius:12px"><strong>Mutable Dreams 1.2 — warmer worlds, made together.</strong> Thank you for listening, sharing your music and helping this instrument grow. Explore new voices, keep your own Biomes and shape them on your FM-1 or in the browser.</p><p class="patch-note"><button id="mellow-start">Explore the new quiet Biomes</button> 64 new tones · 16 new Biomes · 32-step sequences · keyboard/MIDI recording · chord journeys</p><header><span>MD / INSTRUMENTS FOR WANDERING</span><span>AN INSTRUMENT FOR SMALL WORLDS</span></header><section class="hero"><div><div class="eyebrow">GENERATIVE SYNTHESIS · M-VAVE FM-1 · VERSION 1.2</div><h1>Mutable<br>Dreams.</h1><p>Six voices. Small worlds, endlessly unfolding.<br>Explore 92 Biomes, shape 288 sounds, or begin with a blank canvas.</p></div><div class="emblem" aria-hidden="true"><svg class="flower" viewBox="0 0 260 260" fill="none"><defs><path id="petal" d="M130 130 C77 124 66 47 110 39 C151 30 177 81 130 130Z"/><path id="contour" d="M130 17 C171 3 222 34 226 77 C261 105 244 171 214 186 C196 238 143 243 111 230 C64 251 24 214 28 176 C-1 141 9 89 40 75 C43 35 88 8 130 17Z"/></defs><g class="contours" stroke="#94aa94" opacity=".35"><use href="#contour"/><use href="#contour" transform="translate(130 130) scale(.90) translate(-130 -130)"/><use href="#contour" transform="translate(130 130) scale(.80) translate(-130 -130)"/></g><g class="petals" stroke-width="1.25"><use href="#petal" stroke="#c87d70" fill="#d9827510"/><use href="#petal" transform="rotate(60 130 130)" stroke="#b69958"/><use href="#petal" transform="rotate(120 130 130)" stroke="#729d88"/><use href="#petal" transform="rotate(180 130 130)" stroke="#829cc6"/><use href="#petal" transform="rotate(240 130 130)" stroke="#b38eb9"/><use href="#petal" transform="rotate(300 130 130)" stroke="#69aab3"/></g><circle cx="130" cy="130" r="8" fill="#273c37"/><g class="satellites" fill="#c87d70"><circle cx="130" cy="27" r="3"/><circle cx="223" cy="170" r="2"/><circle cx="44" cy="182" r="4"/></g></svg><span>small worlds, slowly unfolding</span></div></section>
-<div class="toolbar"><button id="power" class="primary">Start instrument</button><button id="play" data-hw="10" disabled>▶ Play</button><select id="scene" aria-label="Biome"><option value="0">Velvet Mist · Ambient</option><option value="1">Soft Machines · Techno</option><option value="2">Six Kicks · All kicks</option><option value="3">Resonant Field · All resonators</option></select><span id="status" class="status">Play the instrument here · Explore it on your FM-1</span></div>
-<nav class="release-links" aria-label="Release navigation"><a href="#editor">Play and edit ↓</a><a href="#update-film">Watch the update ↓</a><a href="#install">Install 1.2 ↓</a><a href="Update-Notes-1.2.txt">What is new ↗</a><a href="Mutable-Dreams-1.2-Guide.pdf">1.2 guide ↓</a><a href="Mutable-Dreams-1.1.html">Previous 1.1 browser ↗</a></nav><details class="atlas" id="atlas" open><summary><span>01 / BIOME ATLAS</span><strong id="biome-title">Velvet Mist</strong><span class="atlas-count">92 Biomes + Blank ↗</span></summary><div class="atlas-tools"><input id="biome-search" type="search" placeholder="Find a Biome …" aria-label="Find a Biome"><select id="biome-family" aria-label="Biome family"><option value="-1">All landscapes</option></select><button id="blank">＋ Blank Biome</button></div><div class="biome-grid" id="biome-grid"></div><p class="atlas-hint">A Biome replaces all six tracks and clears the cloud. Stop playback and SAVE your changes first. Factory Biomes remain available.</p></details><section class="patch-library" id="device-editor" aria-labelledby="device-heading"><div><h2 id="device-heading">Two worlds, one instrument</h2><p>Shape sounds here, or connect your FM-1 and edit it live. <strong id="device-target">BROWSER</strong></p></div><div class="patch-actions"><button id="device-connect">Connect FM-1</button><button id="device-disconnect" disabled>Return to browser</button><button id="device-backup" disabled>Back up all device banks</button><button id="device-restore" disabled>Restore device banks</button><input id="device-bank-file" type="file" accept=".mddb" hidden></div><p id="device-status" role="status">The browser and FM-1 keep separate User Banks. Connect with USB to use the hardware banks.</p><p class="patch-note">Hardware editing needs the matching 1.2 firmware and Web MIDI with SysEx (Chrome or Edge). Audio comes from the FM-1 while connected; the small display is a live parameter view. Export / Import below transfers one complete live Biome as a file. SAVE keeps it on the selected instrument. Full .mddb backups contain the saved project, preferences and all User Banks; unsaved live edits, granular audio and calibration are excluded. A full restore requires STOP, internal clock, and physical SEL confirmation. Save changes before backing up, or export the live patch separately.</p></section><section class="patch-library" aria-label="New musical examples"><div><h2>Five new starting points</h2><p>Stop playback before loading. These examples use the new bass, shared space and selected Elements voices. Start the instrument first.</p></div><div class="patch-actions"><select id="dev-example" aria-label="Musical example"></select><button id="load-dev-example" disabled>Load example</button></div></section><div class="section-label" id="editor"><span>02 / THE BROWSER EDITOR</span><span>Choose a sound · Keep your rhythm</span></div>
-<section class="patch-library" aria-label="Browser patch files"><div><h2>Make this world your own.</h2><p>All six voices, rhythms, filters and effects are playable here. Start the instrument, select a voice, then explore its pages.</p></div><div class="patch-actions"><button id="export-patch" disabled>Export patch ↓</button><button id="import-patch" disabled>Import patch ↑</button><input id="patch-file" type="file" accept=".json,.mutable-dreams.json" hidden></div><p class="patch-note">Patch files keep your six voices, patterns and settings. Stop before importing. User Banks stores 16 Biomes and 64 sounds in this browser; export keeps as many files as you like. In BROWSER mode, edits stay in this browser. After Connect FM-1, edits affect the selected device. The live granular recording is not stored.</p><p id="patch-status" role="status" aria-live="polite">Start the instrument to open your patch library.</p></section><div class="tracks" id="tracks"></div>
-<section class="instrument"><div class="instrument-head"><span>YOUR LIVING INSTRUMENT</span><span id="scene-label">VELVET MIST</span></div><div class="body"><div class="screen-wrap"><canvas id="screen" class="screen" width="240" height="240" aria-label="Live 240 by 240 pixel firmware display"></canvas><div class="screen-label">MUTABLE DREAMS DISPLAY · 240 × 240</div></div><div><nav class="pages" id="pages"></nav><div class="macro-grid" id="macros"></div><div class="performance"><button data-hw="1" id="mute">SEL · Mute track</button><button data-hw="8" id="lock">ARP · Lock seed</button><button data-hw="11">REC · Variation</button><button data-hw="2">ENV · Undo</button><button data-hw="3" id="freeze">LFO · Freeze</button><button data-hw="7">SAVE · Store patch</button></div><div class="subcontrols"><label>Tempo <input id="tempo" type="range" min="30" max="220" value="76"></label><output id="bpm">76 BPM</output><label>Master <input id="master" type="range" min="0" max="4096" value="2700"></label><button id="panic">Panic</button></div></div></div><div class="keyboard-head"><span>PLAY THE SELECTED VOICE</span><div><button data-hw="12">OCT −</button> <output id="octave">Octave 0</output> <button data-hw="13">OCT +</button></div></div><div class="keys" id="keys"></div><label class="typing"><input id="typing-keys" type="checkbox"> Play with typing keys: A W S E D R F G Y H U J · F to E · use OCT for other octaves</label><div class="note">The living background responds to the selected page: sparse settings leave more space, larger grains draw longer forms, and increased modulation brings more movement. It is a guide to settings, not an audio waveform. Hold a function button to see its controls explained on the display. Tap to use it. EDIT: Sound → Filter → Envelope → Mix → Mixer. SEQ: Rhythm → Groove → Bass → Phrase → Sequence → Expression. FX: Grain → Tape → Space → Modulation → Air. GLO: Harmony → Journey → System → Look → MIDI → Banks. HOME + PRESET: Biome. EDIT + PRESET: sound preset. Every track can use every engine.</div></section>
-<section class="patch-library"><button id="midi-connect">Connect MIDI input</button><select id="midi-input" aria-label="MIDI input"><option value="">No MIDI input</option></select><label>User name <input id="bank-name" maxlength="23" value="MY BIOME" aria-label="User Biome or sound name"></label><button id="bank-load">Load user slot</button><button id="bank-save">Save user slot</button><p>Begin with Blank or any factory Biome. Shape your six voices and phrases, then use GLO → User Banks to select one of 16 Biome slots or 64 sound slots. Enter a name, stop playback, choose internal clock and save. In browser mode, an occupied slot requires a second Save within three seconds. The live FM-1 editor instead asks you to confirm replacement. Browser banks stay in this browser; hardware banks stay on the FM-1. Export each finished Biome as a file for safekeeping. Granular audio is not stored.</p></section><div id="notice" role="status" aria-live="polite"></div><section class="roots" aria-label="Thank you to the community"><div><span class="eyebrow">GROWING THROUGH YOUR FEEDBACK</span><h2>Thank you for listening.</h2></div><div><p>Your response to Mutable Dreams has shaped this next chapter. Your requests for warmer sounds, personal Biomes and dependable performance are at the heart of version 1.2. Thank you for making music with it, and for telling us what could be better.</p></div></section><div class="footer-grid"><div><h2>Every voice is yours.</h2><p>Fill all six tracks with percussion, resonant strings, soft chords, or any combination. Choose from 288 sound presets while keeping your notes, rhythm, levels and sends. An empty Biome is a starting point for a world of your own.</p></div><div><h2>Chance, with a memory.</h2><p>Euclidean patterns, swing, accents and repeats meet eight shared scales. Lock a seed with ARP, make a variation with REC, and undo it with ENV. Freeze, reverse or transpose the granular cloud as your rhythm keeps moving.</p></div><div><h2>Room to be clear.</h2><p>Full-rate granular recording, gently overlapping grains and a cleaner signal path bring more detail. Open the filter for clarity or close it for warmth. Gentle resonance and fundamental-led presets keep softer sounds within easy reach. FULL and ECO offer different processing budgets. Automatic admission limits remain in place. The release passed 29 controlled FM-1 cases; dense patches may require ECO. See the qualification report for scope and limits.</p></div></div>
-<section class="watch" id="update-film"><span class="eyebrow">VERSION 1.2 / SHAPED BY LISTENING</span><h2>A gentler palette. More room to compose.</h2><p>A calm walkthrough of the new voices, phrases and living interface, with actual firmware views and music rendered by the Mutable Dreams 1.2 engine. Thank you for helping this instrument grow.</p><video controls playsinline preload="none" poster="Mutable-Dreams-1.2-Poster.jpg"><source src="Mutable-Dreams-1.2-Update.mp4" type="video/mp4"><track kind="captions" src="Mutable-Dreams-1.2-Update.vtt" srclang="en" label="English"></video><p><a href="https://www.youtube.com/watch?v=CBhFDaGCa44">Watch on YouTube ↗</a> · <a href="Mutable-Dreams-1.2-Transcript.txt">Read the transcript</a></p></section><section id="install" class="install-section"><span class="eyebrow">VERSION 1.2 / YOUR NEXT CHAPTER</span><h2>Keep your worlds. Explore new ones.</h2><p>Start from the original M-VAVE Stock V15, or update Mutable Dreams following the matching backup instructions. Export saved User Banks as .mddb and unsaved live edits as JSON before updating. Connect only the intended FM-1 and disconnect the live editor before installation.</p><p><a class="primary" href="Mutable-Dreams-1.2-Install.html">Install or return to V15 ↗</a> · <a href="Mutable-Dreams-1.2.0.fwsc" download>Download firmware ↓</a> · <a href="https://github.com/kidbee85-beep/mutable-dreams/releases/tag/v1.2">GitHub release ↗</a></p><p><a href="Recovery-1.2.txt">Update &amp; recovery guide</a> · <a href="Mutable-Dreams-1.2-Guide.pdf">Illustrated 1.2 guide</a> · <a href="Mutable-Dreams-1.2-Source.zip">Complete source</a> · <a href="DEVICE-TEST-REPORT-1.2.txt">Qualification &amp; limits</a></p><p>Returning to V15 erases User Banks and preferences. Restore them from your separate backup after reinstalling Mutable Dreams; the device requires physical SEL confirmation. For 1.0, follow the legacy backup and qualified route through 1.1 described in the recovery guide. Other third-party update paths are not certified.</p><p>Browser 1.2 banks are separate from hardware and from the <a href="Mutable-Dreams-1.1.html">retained 1.1 browser</a>. Export your older browser patches there, then import them here. Keep the original files for downgrades. USB MIDI is tested; physical TRS-MIDI cable testing remains outstanding.</p></section><section class="roots" aria-labelledby="roots-title"><div><span class="eyebrow">WITH GRATITUDE / OUR ROOTS</span><h2 id="roots-title">From a generous idea,<br>new worlds can grow.</h2></div><div><p>Mutable Dreams owes its foundations to <strong>Émilie Gillet and Mutable Instruments</strong>. Their instruments and openly shared code made this exploration possible. Selected original algorithms from Plaits, Rings and the new Elements Strike subset form part of our sound engine, with their original credits and MIT notices preserved.</p><p>Our contribution is a six-voice instrument for the FM-1: editable Biomes, generative rhythms, a custom granular bus, and an interface that invites discovery. We want to carry that spirit of curiosity into something approachable, expressive, and unmistakably its own.</p><nav aria-label="Original Mutable Instruments work"><a href="https://github.com/pichenettes/eurorack">Explore the original source ↗</a><a href="https://pichenettes.github.io/mutable-instruments-documentation/modules/plaits/">Discover Plaits ↗</a><a href="https://pichenettes.github.io/mutable-instruments-documentation/modules/rings/">Discover Rings ↗</a></nav><p class="credits-note">An independent community project, unaffiliated with and not endorsed by Mutable Instruments. These are selected algorithms, not complete module ports. Our granular bus and Round Bass are our own designs. Marbles-inspired remembered variation, Tides-inspired cyclic modulation and Warps-inspired ring blending are original implementations, not complete ports of those modules.</p></div></section>
-<div class="tiny">Mutable Dreams · Independent firmware for the M-VAVE FM-1. Selected DSP: Émilie Gillet / Mutable Instruments, MIT. Device platform and simulator: fm1-base / felucca-bsp, MPL-2.0. This browser runs the firmware sound engine; FM-1 performance is measured separately. Browser saves stay on this computer. 16 named User Biomes and 64 user sound slots; factory Biomes remain available. Export your finished Biomes as files for safekeeping. Granular memory: 2.97 seconds, mono PCM16 at 44.1 kHz, with stereo grains. ECO uses half-rate FM / VA / Harmonic voices. <a href="DEVICE-TEST-REPORT-1.2.txt">Read the measurements and limitations ↗</a></div></main>
-<script>__DEVICE_BACKUP__
-__DEVICE_EDITOR__</script>
-<script id="firmware" type="application/octet-stream">__WASM__</script><script>
-const CATALOG=__CATALOG__;
-const WORKLET=__WORKLET__;
-const INITIAL_SCREEN='__SCREEN__';
-__RANGE_CONTROLS__
-const colors=['#d98275','#c0a361','#80aa98','#829cc6','#b38eb9','#69aab3'];
-const names=['Plaits · Kick','Plaits · Snare','Plaits · Hi-Hat','Plaits · FM','Plaits · VA','Rings · Modal','Plaits · Harmonic','Sine · Choir','Round · Bass','Elements · Strike','Mellow · Drift','Satin · Morph','Velvet · Keys','Spectral · Bloom','Breath · Texture'];
-const $=id=>document.getElementById(id);let node,ctx,analyser,active=0,page=0,buttons=0,keys=0,playing=0,ready=false,requestedBiome=null;
-let values={macro:[500,400,500,650],models:[7,6,5,4,3,7],tones:[-1,-1,-1,-1,-1,-1],biome:0,edited:0};
-const canvas=$('screen'),cx=canvas.getContext('2d');const im=new Image();im.onload=()=>cx.drawImage(im,0,0);im.src=INITIAL_SCREEN;
-function post(m){if(hardwareDevice){hardwarePost(m);return;}if(node)node.port.postMessage(m);else $('notice').textContent='Start the instrument first.';}
-function cmd(c,t,v){post({type:'app',cmd:'command',c,t,v});}
-function hardware(id,down){buttons=down?buttons|(1<<id):buttons&~(1<<id);post({type:'buttons',mask:buttons});}
-function bindHold(el,id){el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);hardware(id,true);});el.addEventListener('pointerup',()=>hardware(id,false));el.addEventListener('pointercancel',()=>hardware(id,false));el.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();hardware(id,true);}});el.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();hardware(id,false);}});}
-function trackUI(){const root=$('tracks');root.innerHTML='';for(let i=0;i<6;i++){
- let box=document.createElement('div');box.className='track'+(i===active?' active':'');box.style.setProperty('--color',colors[i]);
- box.innerHTML=`<div class="track-top"><button aria-label="Select track ${i+1}">${String(i+1).padStart(2,'0')} <small>VOICE</small></button><span class="seed-dot"></span></div><label class="voice-label">SOUND PRESET<select class="tone-select" aria-label="Sound preset on track ${i+1}"><option value="-1">Custom Biome sound</option>${names.map((n,m)=>`<optgroup label="${n}">${CATALOG.tones.filter(t=>t.model===m).map(t=>`<option value="${t.id}" ${values.tones?.[i]===t.id?'selected':''}>${t.name}</option>`).join('')}</optgroup>`).join('')}</select></label><label class="voice-label engine-label">SOUND ENGINE<select class="engine-select" aria-label="Sound engine on track ${i+1}">${names.map((n,k)=>`<option value="${k}" ${values.models[i]===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="voice-state" id="voice-state-${i}">ready to shape</div>`;
- box.querySelector('button').onclick=()=>{active=i;post({type:'app',cmd:'track',v:i});trackUI();};
- box.querySelector('.engine-select').onchange=e=>{active=i;post({type:'app',cmd:'track',v:i});cmd(0,i,+e.target.value);};
- box.querySelector('.tone-select').onchange=e=>{if(+e.target.value<0)return;active=i;post({type:'app',cmd:'track',v:i});cmd(45,i,+e.target.value);};root.append(box);
-}}
-function chooseBiome(id){$('scene').value=id;cmd(20,0,id);if(!ready){requestedBiome=id;values.biome=id;updateBiomeLabel(id,0);}}
-function updateBiomeLabel(id,edited){const b=CATALOG.biomes[id];const name=b?.name||'Custom Biome';$('biome-title').textContent=name+((edited&1)?' · edited':'');$('scene-label').textContent=name.toUpperCase()+((edited&1)?' *':'');if(b)$('scene').value=id;document.querySelectorAll('[data-biome]').forEach(e=>e.classList.toggle('selected',+e.dataset.biome===id));}
-function atlasUI(){const q=$('biome-search').value.toLowerCase(),family=+$('biome-family').value;const list=CATALOG.biomes.filter(b=>(family<0||b.family===family)&&(b.name.toLowerCase().includes(q)||CATALOG.families[b.family].toLowerCase().includes(q)));$('biome-grid').innerHTML=list.map(b=>`<button data-biome="${b.id}" class="biome-card ${b.id===values.biome?'selected':''}" style="--biome-color:${colors[b.family%6]}"><span class="biome-glyph">${['✺','◌','❋','⌁','∴','✳','⁙','☼','＋'][b.family]}</span><span><strong>${b.name}</strong><small>${CATALOG.families[b.family]} · ${b.tempo} BPM</small></span><span class="biome-number">${String(b.id+1).padStart(2,'0')}</span></button>`).join('')||'<p class="no-results">No matching Biomes.</p>';document.querySelectorAll('[data-biome]').forEach(e=>e.onclick=()=>chooseBiome(+e.dataset.biome));}
-$('mellow-start').onclick=()=>chooseBiome(77);
-$('scene').innerHTML=CATALOG.biomes.map(b=>`<option value="${b.id}">${String(b.id+1).padStart(2,'0')} · ${b.name}</option>`).join('');
-CATALOG.families.forEach((n,i)=>$('biome-family').add(new Option(n,i)));$('biome-search').oninput=atlasUI;$('biome-family').onchange=atlasUI;$('blank').onclick=()=>chooseBiome(64);atlasUI();
-const pageDefs=[[0,'HOME',6,'Live'],[1,'EDIT',4,'Sound'],[10,'EDIT 2',null,'Filter'],[6,'EDIT 3',null,'Envelope'],[4,'EDIT 4',null,'Notes / Pan'],[12,'EDIT 5',null,'Global Mixer'],[13,'SEQ 3',null,'Bass'],[16,'SEQ 4',null,'Phrase'],[14,'FX 3',null,'Shared Space'],[15,'FX 4',null,'Marbles / Tides / Warps'],[2,'SEQ',9,'Rhythm'],[7,'SEQ 2',null,'Groove'],[3,'FX',0,'Granular'],[8,'FX 2',null,'Tape'],[9,'GLO',5,'Harmony'],[5,'GLO 2',null,'System'],[11,'GLO 3',null,'Look'],[17,'GLO 4',null,'MIDI'],[18,'GLO 5',null,'User Banks'],[19,'SEQ 5',null,'32 Steps'],[20,'SEQ 6',null,'Step Expression'],[21,'GLO',null,'Chord Journey'],[22,'FX 5',null,'Cloud / Air']];
-pageDefs.forEach(([i,name,hw,title])=>{let b=document.createElement('button');b.textContent=name+' · '+title;b.dataset.page=i;if(hw!==null){b.title='Tap: next subpage. Hold: help';bindHold(b,hw);}else b.onclick=()=>setPage(i,true);$('pages').append(b);});
-const defs=[[["DENSITY", "More or fewer events"], ["MOTION", "Movement in the note patterns"], ["COLOUR", "Brightness and overtones"], ["SPACE", "Granular cloud level"]], [["TONE", "Brightness"], ["HARMONICS", "Structure or harmony"], ["SHAPE / DECAY", "Melodic voices: shape · Drums and Rings: decay"], ["LEVEL", "Track volume"]], [["HITS", "Events per cycle"], ["LENGTH", "Steps per cycle"], ["ROTATION", "Shift the starting point"], ["CHANCE", "Probability of each event"]], [["ALL: SPACE", "One shared bus for all six tracks; individual sends are in Mixer"], ["ALL: GRAIN SIZE", "Shared 50–300 ms fragments; affects every track sent to this bus"], ["ALL: POSITION", "Shared read position in the 2.97-second memory"], ["ALL: FEEDBACK", "Feed the shared cloud back into the tape"]], [["SEND", "Signal sent to the granular bus"], ["NOTE", "Base pitch as a MIDI note"], ["PAN", "Position in the stereo field"], ["CLOCK DIV", "Individual track speed"]], [["TEMPO", "Beats per minute"], ["QUALITY", "0: ECO / 1: FULL; heavy combinations use ECO automatically"], ["RELEASE ms", "Recovery after ducking"], ["CPU RESET", "Reset the measured peak"]], [["ATTACK ms", "Melodic voices fade in over up to 8 seconds"], ["DECAY", "Melodic time constant up to 16 s; other voices use engine decay"], ["LEVEL", "Track volume"], ["SEND", "Signal sent to the granular bus"]], [["SWING", "Alternate long and short steps across all tracks"], ["REPEATS", "1–4 hits within one master step"], ["ACCENT", "Emphasise the beginning of a track cycle"], ["CLOCK DIV", "Independent speed for each track"]], [["PITCH st", "Transpose grains by up to two octaves"], ["REVERSE", "0: forward · 1: reverse"], ["DUCK FROM", "0: off · 1–6: any track can be the source"], ["DUCK %", "Briefly lower the other tracks and cloud"]], [["ROOT", "Root note for all melodic tracks"], ["SCALE", "A shared set of notes"], ["TRANSPOSE", "Move melodic voices by up to ±24 semitones"], ["TEMPO", "Beats per minute"]], [["CUTOFF", "60 Hz–18 kHz: open for clarity, close for warmth"], ["RESONANCE", "0 is neutral; turn up for a gradual resonant emphasis"], ["CHARACTER", "Off, 12 / 24 dB low-pass, or low-pass gate"], ["BREATHE", "Slow filter movement, different for each track"]], [["MOTION", "Animated or still display"], ["START SOUND", "Quiet startup sound; follows the master volume"], ["INTRO", "Replay the startup animation"], ["CPU RESET", "Reset the measured peak"]]];
-defs.push(...[[["LEVEL", "Selected track volume"], ["GRAIN", "Granular send"], ["DELAY", "Shared echo send"], ["REVERB", "Shared room send"]], [["PHRASE", "0 Off / 1 Euclid-gated motif / 2 independent Step sequence"], ["MOTIF", "Four editable starting phrases, numbered 0\u20133"], ["GLIDE", "Smooth pitch movement"], ["BASE NOTE", "Transpose this track's phrase"]], [["ECHO ms", "40\u2013350 ms, smooth time changes"], ["FEEDBACK", "Bounded echo repeats"], ["ROOM TAIL", "Shared room decay"], ["RETURN", "Combined echo and room return"]], [["MARBLES", "Remembered offbeat variation in Bass phrase mode"], ["TIDES", "Cyclic cutoff modulation; enable a filter"], ["CYCLE", "Slow the Tides cycle from 0.5 to 20 seconds"], ["WARPS", "Gentle ring-modulation blend"]], [["STEP", "Select phrase step 0\u201315"], ["NOTE / REST", "Semitone offset; -1 is a rest; follows scale"], ["ACCENT", "Emphasise cycle starts"], ["CHANCE", "Probability of phrase events"]]]);
-defs.push([["CLOCK","0 Internal / 1 USB / 2 TRS; changing source stops playback"],["SCALE SNAP","0 exact input notes / 1 snap to Biome scale"],["CHANNELS","Channels 1–6 play the six tracks"],["PANIC","Use Panic to release all voices"]],[["SLOT","16 Biomes or 64 sounds; slots belong to the selected instrument"],["BANK","0 Biomes / 1 sounds"],["LOAD","Use the Load user slot button below"],["SAVE","Use Save user slot; confirm before replacing"]]);
-defs.push([["SEQUENCE","Enable this track's 32-step sequence; takes priority over legacy motifs"],["STEP","Select a step (1–32)"],["NOTE / REST","Absolute MIDI note; 23 is a rest. REC cycles step entry, live overdub and off"],["LENGTH","1–32 steps; save the Biome to keep your phrase"]],[["VELOCITY","Selected step's loudness"],["GATE","Selected step's duration, as a percentage"],["CHANCE","Selected step's trigger probability"],["GENERATE","Replace this track: sparse, arpeggio, pulse or drift. ENV undoes"]],[["JOURNEY","Off or four scale-degree chord progressions"],["BARS / CHORD","Slow harmony changes every 1–8 bars"],["THIS TRACK","Follow the journey or keep this track's notes"],["ROOT","Global tonic; choose the scale on Harmony"]],[["ALL: AIR","Filtered noise mixed into the shared tape; frozen tape does not change"],["ALL: SPACE","Shared granular return"],["THIS: SEND","Only the selected track's send changes"],["ALL: FREEZE","Hold the shared granular tape"]]);
-let fieldKey='';
-function updateLivingField(){
- const raw=values.raw||[],norm=i=>{const [,lo,hi]=controlDefs[page][i];return Math.max(0,Math.min(1,((raw[i]??lo)-lo)/(hi-lo||1)))};
- const d=norm(0),size=page===3?norm(1):(norm(1)+norm(3))/2;
- const hue=[3,8,14,22].includes(page)?190:[9,15,17,21].includes(page)?275:[2,7,13,16,19,20].includes(page)?35:155;
- const key=[page,Math.round(d*40),Math.round(size*40)].join(':');if(key===fieldKey)return;fieldKey=key;
- const el=document.querySelector('.instrument');
- el.style.backgroundImage=`radial-gradient(ellipse at 50% 50%,hsla(${hue},44%,57%,${.035+d*.13}),transparent 68%),radial-gradient(ellipse at 50% 50%,hsla(${hue+55},38%,60%,${.02+size*.09}),transparent 65%)`;
- el.style.backgroundSize=`${35+65*size}% ${40+60*size}%,${25+70*d}% ${30+70*d}%`;
- el.style.backgroundPosition=`${15+(page*17)%55}% 15%,90% ${20+(page*11)%45}%`;
+</head>
+<body>
+<header>
+  <h1>Markov Dreams</h1>
+  <p>A small band on the FM-1 that will learn what you play. Work in progress: step 1 of 5.</p>
+</header>
+<main>
+<h2 class="sr">The FM-1</h2>
+<p class="turn">Turn your phone sideways for bigger controls.</p>
+<div class="devicebox">
+<div class="device" id="device">
+  <svg id="panel" viewBox="0 0 1000 640" aria-hidden="true" focusable="false"></svg>
+  <canvas id="screen" width="240" height="240" role="img" aria-label="The FM-1's screen. Its text is read out: see Screen Reader, below the panel"></canvas>
+  <div id="controls" role="group" aria-label="The FM-1's panel" aria-describedby="panel-keys" inert></div>
+  <div class="start" id="start"><button type="button" id="go">Switch on</button></div>
+</div>
+</div>
+<p id="panel-keys" class="sr">Tab moves through the knobs, the buttons, the black keys and the white keys. Arrow keys turn a knob,
+  Page Up and Page Down faster. Space or Enter holds a button or key down while you hold it; Shift and Enter keeps it down
+  until you press it again (with a mouse: Shift-click or right-click).</p>
+
+<div class="bar">
+  <span id="status" role="status">Off. Sound starts when you switch it on.</span>
+  <span id="alert" role="alert"></span>
+  <button id="mute" type="button" aria-pressed="false">Mute</button>
+  <label class="keys"><input type="checkbox" id="shortcuts" checked> Keyboard shortcuts</label>
+  <span class="cpu" id="cpu"></span>
+  <button id="reset" type="button" aria-describedby="reset-why">Factory reset</button>
+  <span id="reset-why" class="sr">Forget what was saved and start again from the factory settings</span>
+</div>
+
+<details class="speak" id="speak">
+  <summary><h2>Screen Reader</h2></summary>
+  <fieldset>
+    <legend>Output</legend>
+    <label><input type="radio" name="speak" value="sr" checked> System screen reader</label>
+    <label><input type="radio" name="speak" value="voice"> Built-in voice</label>
+    <label><input type="radio" name="speak" value="off"> Off</label>
+  </fieldset>
+  <p id="said" aria-hidden="true"></p>
+  <div class="row">
+    <button type="button" id="where" disabled>Read whole screen</button>
+    <button type="button" id="again" disabled>Repeat last</button>
+  </div>
+</details>
+<!-- what the screen says, for the computer's screen reader -->
+<div id="live-p" class="sr" aria-live="polite" aria-atomic="true"></div>
+<div id="live-a" class="sr" aria-live="assertive" aria-atomic="true"></div>
+
+<section class="help">
+  <div>
+    <h2>How to play (step 1)</h2>
+    <ul>
+      <li><b>Switch on</b>, then <b>PLAY</b>.</li>
+      <li><b>FX / SEL / ENV / LFO</b> pick a track: DRM, BAS, LED, CHD. Tap DRM again for kick, snare, hat.</li>
+      <li>The keys play the chosen track.</li>
+      <li>Drag <b>PRESETS</b> up or down to change the kit. <b>SELECT</b> sets the tempo.</li>
+      <li>Hold any button for a short help card.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>On a phone</h2>
+    <p>Turn it sideways. Drag a knob up or down to turn it. If there is no sound, check the phone is not on silent.</p>
+  </div>
+  <div>
+    <h2>Credits and licence</h2>
+    <p>Markov Dreams is a GPL-3.0 fork of <a href="https://github.com/kidbee85-beep/mutable-dreams">Mutable Dreams</a> by kidbee85-beep.
+      Sound engines by Émilie Gillet / Mutable Instruments (MIT). FM-1 platform and this simulator page from fm1-base / felucca-bsp by
+      Charles Vestal (MPL-2.0). Fonts under the SIL OFL. <a href="https://github.com/umptycandy/markov-dreams">Source code</a>.</p>
+  </div>
+</section>
+</main>
+
+
+<script id="firmware" type="application/octet-stream">__WASM__</script>
+<script>
+"use strict";
+const WORKLET = __WORKLET__;
+const NS = "http://www.w3.org/2000/svg";
+const BTN = { FX: 0, SEL: 1, ENV: 2, LFO: 3, EDIT: 4, GLO: 5, HOME: 6, SAVE: 7, ARP: 8, SEQ: 9, PLAY: 10, REC: 11, "OCT-": 12, "OCT+": 13 };
+const ENC = { SELECT: 0, ALGORITHM: 1, PRESETS: 2, KNOB1: 3, KNOB2: 4, KNOB3: 5, KNOB4: 6 };
+const WHITE_K = [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26];
+const BLACK_K = [1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25];
+const BLACK_AFTER = [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14];
+const BODY = "#3a3d42", TRAY = "#26282c", KEY_W = "#d9dadc", KEY_B = "#c9cacd", KNOB = "#1f2124", BTNC = "#2e3135", LABEL = "#e8e8ea";
+const STORE_KEY = "markov-dreams-emu-store", PREFS_KEY = "markov-dreams-emu-prefs";
+const $ = (id) => document.getElementById(id);
+const prefs = (() => { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } })();
+const savePrefs = () => { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch { /* private window */ } };
+
+const svg = $("panel");
+function el(tag, attrs, parent = svg) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  parent.appendChild(e);
+  return e;
 }
-function setPage(p,send){page=p;if(send)post({type:'app',cmd:'page',v:p});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',+b.dataset.page===p));macroUI();updateLivingField();}
-function knobText(p,k,v){if(p===19)return k===0?(v?'On':'Off'):k===1?v+1:k===2&&v===23?'Rest':v;if(p===20)return k===3?['Sparse','Arpeggio','Pulse','Drift'][v]:v+' %';if(p===21)return k===0?['Off','I–IV–I–V','I–VI–IV–V','I–VII–IV–I','I–III–VI–IV'][v]:k===2?(v?'Follow':'Stay'):v;if(p===22)return k===3?(v?'Frozen':'Recording'):Math.round(v/10)+' %';if(p===17)return k===0?["Internal","USB","TRS"][v]:k===1?(v?"On":"Off"):"—";if(p===18)return k===0?v+1:k===1?(v?"Sounds":"Biomes"):"Use button";if(p===12||p===15&&k!==2||p===14&&k!==0||p===13&&k===2||p===16&&k>=2)return Math.round(v/10)+" %";if(p===15&&k===2)return ((500+v*19.5)/1000).toFixed(1)+" s";if(p===13&&k===0)return ["Off","Euclid","Step"][v];if(p===13&&k===1||p===16&&k===0)return v+1;if(p===16&&k===1&&v<0)return "Rest";if(p===11)return k===0?(v?'Living':'Still'):k===1?(v?'On':'Off'):k===2?'Replay':'↺';if(p===10&&k===2)return ['Off','LP 12 dB','LP 24 dB','Low-Pass-Gate'][v];if(p===10&&k===0)return v+' Hz';if(p===6&&k===0&&![3,4,6,7,8,10,11,12,13,14].includes(values.models[active]))return 'Melodic';if(p===6&&k===1)return [3,4,6,7,8,10,11,12,13,14].includes(values.models[active])?v+' ms':Math.round((values.raw?.[1]??0)/10)+' %';if(p===9&&k===0)return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][v];if(p===9&&k===1)return ['Chromatic','Minor','Major','Dorian','Minor pent.','Major pent.','Whole tone','Phrygian'][v];if(p===5&&k===1)return v?'FULL':'ECO';if(p===5&&k===3)return '↺';if(p===8&&k===1)return v?'Reverse':'Forward';if(p===8&&k===2)return v?'Track '+v:'Off';return v;}
-const controlDefs=[
- [[14,0,1000],[14,0,1000],[14,0,1000],[14,0,1000]],
- [[1,0,1000],[2,0,1000],[40,0,1000],[4,0,1000]],
- [[6,0,32],[7,1,32],[8,0,31],[9,0,1000]],
- [[14,0,1000],[22,0,1000],[23,0,1000],[24,0,850]],
- [[5,0,1000],[10,24,96],[11,0,1000],[13,1,8]],
- [[15,30,220],[25,0,1],[38,0,1000],[-1,0,1]],
- [[28,0,1000],[3,0,1000],[4,0,1000],[5,0,1000]],
- [[29,0,600],[30,1,4],[39,0,1000],[13,1,8]],
- [[34,-24,24],[35,0,1],[36,-1,5],[37,0,1000]],
- [[31,0,11],[32,0,7],[33,-24,24],[15,30,220]],
- [[41,0,1000],[42,0,1000],[43,0,3],[44,0,1000]],
- [[103,0,1],[104,0,1],[105,0,1],[106,0,1]]
-];
-controlDefs.push(...[[[4, 0, 1000], [5, 0, 1000], [46, 0, 1000], [47, 0, 1000]], [[52, 0, 2], [53, 0, 3], [54, 0, 1000], [10, 24, 96]], [[48, 40, 350], [49, 0, 800], [50, 0, 850], [51, 0, 1000]], [[55, 0, 1000], [56, 0, 1000], [57, 0, 1000], [58, 0, 1000]], [[59, 0, 15], [60, -1, 24], [39, 0, 1000], [9, 0, 1000]]]);
-controlDefs.push([[61,0,2],[62,0,1],[-2,0,1],[-2,0,1]],[[111,0,63],[112,0,1],[-2,0,1],[-2,0,1]]);
-controlDefs.push([[64,0,1],[65,0,31],[66,23,96],[71,1,32]],[[67,1,100],[69,1,100],[68,0,100],[70,0,3]],[[73,0,4],[74,1,8],[77,0,1],[31,0,11]],[[63,0,1000],[14,0,1000],[5,0,1000],[21,0,1]]);
-function macroUI(){const rec=document.querySelector('[data-hw="11"]');if(rec)rec.textContent=(page===19||page===20)?'REC · Step / Live / Off':'New variation';const root=$('macros');for(const r of root.querySelectorAll('input'))rangeGestures.delete(r);root.innerHTML='';defs[page].forEach(([name,hint],i)=>{if(page===1&&i===0&&values.models[active]===6)hint='Low values keep the fundamental; higher values emphasise upper partials';if(page===1&&i===1&&values.models[active]===5)hint='Resonator structure: harmonic strings through metallic modes';const d=document.createElement('div');d.className='macro';d.style.setProperty('--color',colors[i]);const [c,min,limit]=controlDefs[page][i];const max=page===18&&i===0&&!values.raw?.[1]?15:limit;d.innerHTML=`<header><span>K${i+1} / ${name}</span><span>↻</span></header><output id="macro-value-${i}">${knobText(page,i,values.knobs?.[i]??0)}</output><input aria-label="K${i+1} ${name}" type="range" min="${min}" max="${max}" value="${values.raw?.[i]??min}"><small>${hint}</small>`;const r=d.querySelector('input');bindRange(r);r.disabled=c===-2;r.oninput=()=>{if(c===-2)return;else if(c<0)post({type:'enc',role:6,n:1});else cmd(page===1&&i===2&&![3,4,6,7,8,9,10,11,12,13,14].includes(values.models[active])?3:c,c===14?(page===0?i:3):active,+r.value);};root.append(d);});}
-for(const el of document.querySelectorAll('[data-hw]'))bindHold(el,+el.dataset.hw);
-const noteNames=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
-function keyEdge(k,down){keys=down?keys|(1<<k):keys&~(1<<k);post({type:'keys',mask:keys});document.querySelector(`[data-key="${k}"]`)?.classList.toggle('pressed',down);}
-let whiteIndex=0;for(let k=0;k<27;k++){const midi=53+k,black=[1,3,6,8,10].includes(midi%12),b=document.createElement('button');b.dataset.key=k;b.className=black?'black':'white';b.textContent=noteNames[midi%12];b.setAttribute('aria-label','Play '+noteNames[midi%12]+' '+(Math.floor(midi/12)-1));if(black)b.style.left=`calc(${whiteIndex*100/16}% - 1.8%)`;else{b.style.left=(whiteIndex++*100/16)+'%';b.style.width='6.25%';}b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keyEdge(k,true)};b.onpointerup=()=>keyEdge(k,false);b.onpointercancel=()=>keyEdge(k,false);b.onkeydown=e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();keyEdge(k,true)}};b.onkeyup=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();keyEdge(k,false)}};$('keys').append(b);}
-function receiveEngine(m){if(m.type==='patch-result')receivePatch(m);if(m.type==='ready'){ready=true;$('load-dev-example').disabled=false;$('export-patch').disabled=$('import-patch').disabled=false;$('patch-status').textContent='Ready to export a patch, or stop playback to import one.';$('play').disabled=false;$('power').textContent='● Instrument ready';$('notice').textContent=m.storageRejected?'Some saved browser data is invalid and was not loaded.':'Ready. Play a Biome or an individual note.';if(requestedBiome!==null)cmd(20,0,requestedBiome);}if(m.type==='state'){const engineChanged=values.models[active]!==m.models[m.track];playing=m.playing;values=m;if(!hardwareDevice&&document.activeElement!==$('bank-name'))$('bank-name').value=m.bankName||'MY BIOME';$('octave').textContent='Octave '+(m.octave>0?'+':'')+m.octave;document.querySelectorAll('[data-key]').forEach((b,k)=>b.setAttribute('aria-label','Play '+noteNames[(53+k)%12]+' '+(Math.floor((53+k)/12)-1+m.octave)));if(page!==m.page)setPage(m.page,false);if(active!==m.track){active=m.track;trackUI();}if(engineChanged&&page===1)macroUI();$('play').textContent=playing?'■ Stop':'▶ Play';$('lock').classList.toggle('active',!!m.locked);$('freeze').classList.toggle('active',!!m.freeze);$('mute').classList.toggle('active',!!m.muted?.[active]);syncRange($('tempo'),m.tempo);$('bpm').textContent=m.tempo+' BPM';document.querySelectorAll('.engine-select').forEach((s,i)=>s.value=m.models[i]);document.querySelectorAll('.tone-select').forEach((s,i)=>s.value=m.tones[i]);document.querySelectorAll('.voice-state').forEach((s,i)=>s.textContent=m.muted[i]?'muted':(m.edited&(2<<i))?'sound edited':'ready to shape');updateBiomeLabel(m.biome,m.edited);document.body.classList.toggle('still',!m.motion);updateLivingField();if(m.knobs)m.knobs.forEach((v,i)=>{const el=$('macro-value-'+i);if(el)el.textContent=knobText(page,i,v);const r=$('macros').children[i]?.querySelector('input');if(r){if(page===18&&i===0)r.max=m.raw?.[1]?63:15;syncRange(r,m.raw[i]);}});}if(m.type==='frame'){if(m.fb){const pixels=new ImageData(240,240);for(let i=0;i<m.fb.length;i++){const v=((m.fb[i]>>8)|((m.fb[i]&255)<<8));pixels.data[i*4]=(v>>11)*255/31;pixels.data[i*4+1]=((v>>5)&63)*255/63;pixels.data[i*4+2]=(v&31)*255/31;pixels.data[i*4+3]=255;}cx.putImageData(pixels,0,0);}if(m.store)try{localStorage.setItem('mutable-dreams-1.2',JSON.stringify(m.store));$('notice').textContent='Patch saved in this browser.';}catch{$('notice').textContent='Local saving is blocked in this browser.';}}}
-$('power').onclick=async()=>{try{$('power').disabled=true;ctx=new AudioContext({sampleRate:44100,latencyHint:'interactive'});if(ctx.sampleRate!==44100)throw new Error('This browser cannot provide 44.1 kHz audio here.');await ctx.audioWorklet.addModule('data:text/javascript;base64,'+btoa(unescape(encodeURIComponent(WORKLET))));node=new AudioWorkletNode(ctx,'fm1',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});node.onprocessorerror=()=>{$('notice').textContent='Audio stopped unexpectedly. Reload the page to restart.';};analyser=ctx.createAnalyser();node.connect(analyser);analyser.connect(ctx.destination);node.port.onmessage=({data:m})=>{if(!hardwareDevice)receiveEngine(m)};const bytes=Uint8Array.from(atob($('firmware').textContent.trim()),c=>c.charCodeAt(0));let store={};try{store=JSON.parse(localStorage.getItem('mutable-dreams-1.2')||'{}');}catch{store=null;}node.port.postMessage({type:'load',wasm:bytes.buffer,master:+$('master').value,store},[bytes.buffer]);await ctx.resume();window.dreamsDebug={node,ctx,analyser,get ready(){return ready}};}catch(e){$('notice').textContent='Could not start: '+e.message;$('power').disabled=false;}};
-bindRange($('tempo'));
-$('panic').onclick=()=>cmd(27,0,0);$('scene').onchange=()=>chooseBiome(+$('scene').value);$('tempo').oninput=()=>cmd(15,0,+$('tempo').value);$('master').oninput=()=>post({type:'master',value:+$('master').value});
-window.addEventListener('blur',()=>{buttons=keys=0;document.querySelectorAll('[data-key]').forEach(b=>b.classList.remove('pressed'));if(node||hardwareDevice){post({type:'buttons',mask:0});post({type:'keys',mask:0});}});trackUI();setPage(0,false);
-
-const developmentPatches=__DEV_PATCHES__;
-developmentPatches.forEach((p,i)=>$('dev-example').add(new Option(p.name,i)));
-$('load-dev-example').onclick=async()=>{try{if(playing)throw Error('Stop playback before loading an example.');await importPatch(JSON.stringify(developmentPatches[+$('dev-example').value]));$('patch-status').textContent=developmentPatches[+$('dev-example').value].name+' loaded. Press Play.';}catch(e){$('patch-status').textContent=e.message;}};
-let patchRequestId=0;const patchRequests=new Map();
-function patchRequest(command,bytes){if(hardwareDevice){if(hardwareBusy)return Promise.reject(Error('Wait for the bank transfer to finish.'));return flushHardwareParams().then(()=>command==='patch-export'?hardwareDevice.snapshot().then(bytes=>({bytes})):hardwareDevice.upload(bytes).then(()=>({loaded:true})));}return new Promise((resolve,reject)=>{
- if(!ready){reject(Error('Start the instrument first.'));return;}
- const id=++patchRequestId,timer=setTimeout(()=>{patchRequests.delete(id);reject(Error('The instrument did not respond. Check that browser audio is running.'));},4000);
- patchRequests.set(id,{resolve,reject,timer});post({type:'app',cmd:command,id,bytes});
-});}
-function receivePatch(m){const q=patchRequests.get(m.id);if(!q)return;clearTimeout(q.timer);patchRequests.delete(m.id);if(m.error)q.reject(Error(m.error));else q.resolve(m);}
-async function exportPatch(){const m=await patchRequest('patch-export');return {format:'mutable-dreams-patch',version:1,firmware:'1.2',name:page===18?values.bankName:$('biome-title').textContent,patch:m.bytes};}
-async function importPatch(text){
- if(text.length>65536)throw Error('This file is too large to be a Mutable Dreams patch.');
- let p;try{p=JSON.parse(text)}catch{throw Error('This is not a readable patch file.');}
- if(p?.format!=='mutable-dreams-patch'||p.version!==1||!Array.isArray(p.patch)||![652,1292,2100].includes(p.patch.length)||p.patch.some(v=>!Number.isInteger(v)||v<0||v>255))throw Error('Choose a Mutable Dreams patch exported by this editor.');
- return patchRequest('patch-import',p.patch);
+function text(parent, x, y, s, size, fill = LABEL, weight = 600) {
+  const t = el("text", { x, y, "text-anchor": "middle", "font-family": "'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif",
+                         "font-size": size, "font-weight": weight, fill, "letter-spacing": ".05em", class: "btn", "pointer-events": "none" }, parent);
+  t.textContent = s;
+  return t;
 }
-$('export-patch').onclick=async()=>{try{const p=await exportPatch(),url=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)+'\n'],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(p.name.replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'')||'My-Biome')+'.mutable-dreams.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);$('patch-status').textContent='Patch exported. Keep the file to return to this world.';}catch(e){$('patch-status').textContent=e.message;}};
-$('import-patch').onclick=()=>{if(playing){$('patch-status').textContent='Stop playback before importing a patch.';return;}$('patch-file').click();};
-$('patch-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>65536)throw Error('This file is too large to be a Mutable Dreams patch.');await importPatch(await f.text());$('patch-status').textContent='Patch loaded. Press Play to listen. Use SAVE to keep it on the selected instrument.';}catch(err){$('patch-status').textContent=err.message;}finally{e.target.value='';}};
-const typingCodes=['KeyA','KeyW','KeyS','KeyE','KeyD','KeyR','KeyF','KeyG','KeyY','KeyH','KeyU','KeyJ'],typingHeld=new Set();
-window.addEventListener('keydown',e=>{const k=typingCodes.indexOf(e.code);if(!ready||!$('typing-keys').checked||k<0||e.repeat||e.ctrlKey||e.metaKey||e.altKey||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;e.preventDefault();typingHeld.add(e.code);keyEdge(k,true);});
-window.addEventListener('keyup',e=>{if(typingHeld.delete(e.code)){e.preventDefault();keyEdge(typingCodes.indexOf(e.code),false);}});
-function releaseTyping(){typingHeld.forEach(c=>keyEdge(typingCodes.indexOf(c),false));typingHeld.clear();}
-$('typing-keys').onchange=releaseTyping;window.addEventListener('blur',()=>typingHeld.clear());
-document.querySelectorAll('[data-seek]').forEach(b=>b.onclick=async()=>{const v=document.querySelector('.watch video');v.currentTime=+b.dataset.seek;try{await v.play()}catch{};});
 
-let midiAccess=null,midiSelected=null;
-$('midi-connect').onclick=async()=>{try{
- if(!ready)throw Error('Start the instrument first.');
- if(!navigator.requestMIDIAccess)throw Error('Web MIDI is unavailable in this browser.');
- midiAccess=await navigator.requestMIDIAccess({sysex:false});
- const refresh=()=>{const selected=$('midi-input').value;$('midi-input').innerHTML='<option value="">Choose MIDI input</option>';for(const input of midiAccess.inputs.values())$('midi-input').add(new Option(input.name,input.id));if(midiAccess.inputs.has(selected))$('midi-input').value=selected;else {cmd(27,0,0);midiSelected=null;}};
- midiAccess.onstatechange=refresh;refresh();$('notice').textContent='Select one MIDI input. Channels 1–6 address the six tracks.';
- }catch(e){$('notice').textContent=e.message;}};
-$('midi-input').onchange=()=>{if(midiSelected)midiSelected.onmidimessage=null;cmd(27,0,0);midiSelected=midiAccess?.inputs.get($('midi-input').value);if(midiSelected)midiSelected.onmidimessage=({data:d})=>{const st=d[0];if(st<128||st===240)return;post({type:'app',cmd:'midi',packet:((st>=248?15:st>>4)|(st<<8)|((d[1]||0)<<16)|((d[2]||0)<<24))>>>0});};};
-$('bank-name').onchange=()=>post({type:'app',cmd:'bank-name',name:$('bank-name').value});
-$('bank-load').onclick=()=>cmd(113,0,0);$('bank-save').onclick=()=>cmd(114,0,0);
+// ---------------------------------------------------------------- the panel (a picture: aria-hidden)
+el("rect", { x: 4, y: 4, width: 992, height: 632, rx: 44, fill: BODY });
+const knobs = {};
+// MARKOV DREAMS: what each control does, drawn in amber under the FM-1's own label
+const ROLE_INK = "#ffaa5a";
+const KNOB_ROLE = { MASTER: "VOLUME", SELECT: "TEMPO", PRESETS: "KIT", ALGORITHM: "ENGINE", KNOB1: "DENSITY", KNOB2: "MOTION", KNOB3: "COLOUR", KNOB4: "SPACE" };
+const BTN_ROLE = { FX: "DRM", SEL: "BAS", ENV: "LED", LFO: "CHD" };
+function knob(x, y, r, label, role, name) {
+  const g = el("g", { class: "ctl knob" });
+  el("circle", { cx: x, cy: y, r: r + 5, fill: TRAY }, g);
+  el("circle", { cx: x, cy: y, r, fill: KNOB, stroke: "#44474c", "stroke-width": 2 }, g);
+  const ind = el("line", { x1: x, y1: y - r + 5, x2: x, y2: y - r + 15, stroke: LABEL, "stroke-width": 3, "stroke-linecap": "round" }, g);
+  text(g, x, y - r - 12, label, 17);
+  if (KNOB_ROLE[label]) text(g, x, y + r + 24, KNOB_ROLE[label], 14, ROLE_INK);
+  el("circle", { cx: x, cy: y, r: r + 14, fill: "transparent" }, g);
+  knobs[label] = { g, ind, x, y, angle: 0, role, name: name || label };
+  return knobs[label];
+}
+knob(105, 100, 24, "MASTER", "master");
+knob(215, 100, 24, "SELECT", ENC.SELECT);
+knob(105, 205, 24, "PRESETS", ENC.PRESETS);
+knob(215, 205, 24, "ALGORITHM", ENC.ALGORITHM);
+for (let i = 0; i < 4; i++) knob(610 + i * 104, 100, 22, `KNOB${i + 1}`, ENC[`KNOB${i + 1}`], `KNOB ${i + 1}`);
 
-__DEVICE_UI__
-</script></html>
+const buttons = {};
+function button(x, y, w, h, label, two) {
+  const g = el("g", { class: "ctl" });
+  el("rect", { x, y, width: w, height: h, rx: 9, fill: BTNC, stroke: "#4a4d52", "stroke-width": 1.5, class: "btnface" }, g);
+  if (BTN_ROLE[label]) { text(g, x + w / 2, y + h / 2 - 2, BTN_ROLE[label], 16, ROLE_INK); text(g, x + w / 2, y + h / 2 + 13, label, 11); }
+  else if (two) { text(g, x + w / 2, y + h / 2 - 1, label, 12); text(g, x + w / 2, y + h / 2 + 12, two, 12); }
+  else text(g, x + w / 2, y + h / 2 + 5, label, 15);
+  buttons[label] = { g, bit: BTN[label], name: { "OCT-": "OCT minus", "OCT+": "OCT plus" }[label] || label, light: "" };
+}
+el("rect", { x: 58, y: 258, width: 210, height: 58, rx: 14, fill: TRAY });
+button(72, 268, 82, 38, "OCT-"); button(170, 268, 82, 38, "OCT+");
+el("rect", { x: 300, y: 44, width: 236, height: 236, rx: 26, fill: "#111214" });
+el("rect", { x: 568, y: 160, width: 400, height: 140, rx: 18, fill: TRAY });
+const ROW1 = ["FX", "SEL", "ENV", "LFO", "EDIT", "GLO"], ROW2 = ["HOME", "SAVE", "ARP", "SEQ", "PLAY", "REC"];
+for (let i = 0; i < 6; i++) button(582 + i * 63, 174, 54, 48, ROW1[i]);          // row by row: the reading order
+for (let i = 0; i < 6; i++) button(582 + i * 63, 236, 54, 48, ROW2[i], ROW2[i] === "PLAY" ? "STOP" : undefined);
+
+const keys = [];
+(function keybed(x0, y0, w, h) {
+  el("rect", { x: x0, y: y0, width: w, height: h, rx: 18, fill: TRAY });
+  const pitch = (w - 24) / 16, kw = pitch * 0.78;
+  BLACK_AFTER.forEach((a, k) => {                                                   // the black keys: the upper row
+    const g = el("g", { class: "ctl" });
+    el("rect", { x: x0 + 12 + (a + 1) * pitch - kw / 2, y: y0 + h * 0.06, width: kw, height: h * 0.33, rx: kw / 2, fill: KEY_B, class: "keyface black" }, g);
+    keys[BLACK_K[k]] = { g, name: `Black key ${k + 1}`, light: "" };
+  });
+  for (let i = 0; i < 16; i++) {
+    const g = el("g", { class: "ctl" });
+    el("rect", { x: x0 + 12 + i * pitch + (pitch - kw) / 2, y: y0 + h * 0.43, width: kw, height: h * 0.52, rx: kw / 2, fill: KEY_W, class: "keyface white" }, g);
+    keys[WHITE_K[i]] = { g, name: `White key ${i + 1}` };
+  }
+})(36, 340, 928, 270);
+
+// ---------------------------------------------------------------- the controls
+// The drawing is only a picture (pointer-events: none). Each control gets an invisible HTML target over it,
+// which is also what the keyboard and a screen reader use: browsers (iOS Safari above all) honour touch-action
+// and touchstart on HTML elements but not on SVG ones, so the controls keep their touches while a finger
+// anywhere else on the device scrolls the page natively.
+const controls = $("controls");
+function group(label) {
+  const d = document.createElement("div");
+  d.setAttribute("role", "group");
+  d.setAttribute("aria-label", label);
+  controls.appendChild(d);
+  return d;
+}
+function hit(c, parent, attrs, cls) {
+  const b = c.g.getBBox(), d = document.createElement("div");
+  d.className = "hit" + (cls ? " " + cls : "");
+  Object.assign(d.style, { left: `${b.x / 10}%`, top: `${b.y / 6.4}%`, width: `${b.width / 10}%`, height: `${b.height / 6.4}%` });
+  d.tabIndex = 0;
+  for (const [k, v] of Object.entries(attrs)) if (v != null) d.setAttribute(k, v);
+  if (attrs["aria-description"]) d.title = attrs["aria-description"];
+  d.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
+  // a click focuses the control (without the ring), so the panel's keyboard shortcuts follow the mouse
+  d.addEventListener("pointerdown", () => d.focus({ preventScroll: true }));
+  parent.appendChild(d);
+  c.hit = d;
+}
+const gKnobs = group("Knobs"), gButtons = group("Buttons"), gBlack = group("Black keys"), gWhite = group("White keys");
+let master = 2800;
+const masterPct = () => Math.round(master * 100 / 4096);
+for (const [label, k] of Object.entries(knobs)) {
+  if (k.role === "master")      // the volume has a value: a slider
+    hit(k, gKnobs, { role: "slider", "aria-label": "MASTER", "aria-description": "Volume", "aria-orientation": "vertical",
+                     "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": masterPct(), "aria-valuetext": `${masterPct()} percent` }, "knob");
+  else                          // an endless encoder has none: the screen says what it changed
+    hit(k, gKnobs, { role: "button", "aria-label": k.name,
+                     "aria-description": "Turn it with the arrow keys, Page Up and Page Down for big steps" }, "knob");
+}
+for (const lbl of ["OCT-", "OCT+", ...ROW1, ...ROW2])
+  hit(buttons[lbl], gButtons, { role: "button", "aria-label": buttons[lbl].name, "aria-pressed": "false"});
+BLACK_K.forEach((n) => hit(keys[n], gBlack, { role: "button", "aria-label": keys[n].name, "aria-pressed": "false" }));
+WHITE_K.forEach((n) => hit(keys[n], gWhite, { role: "button", "aria-label": keys[n].name, "aria-pressed": "false" }));
+
+// ---------------------------------------------------------------- state and input
+let node = null, gain = null, btnMask = 0, keyMask = 0, latched = 0, keyLatched = 0;   // latched: held down until pressed again
+const btnHeldBy = new Map(), keyHeldBy = new Map();      // pointer / key id -> bit
+function send(m) { if (node) node.port.postMessage(m); }
+function syncButtons() {
+  let m = latched;
+  for (const b of btnHeldBy.values()) m |= 1 << b;
+  if (m !== btnMask) { btnMask = m; send({ type: "buttons", mask: m }); }
+  for (const b of Object.values(buttons)) {
+    b.g.classList.toggle("held", !!(m & (1 << b.bit)));
+    b.g.classList.toggle("latched", !!(latched & (1 << b.bit)));
+    b.hit.classList.toggle("latched", !!(latched & (1 << b.bit)));
+    const pressed = m & (1 << b.bit) ? "true" : "false";
+    if (b.hit.getAttribute("aria-pressed") !== pressed) b.hit.setAttribute("aria-pressed", pressed);
+  }
+}
+function syncKeys() {
+  let m = keyLatched;
+  for (const k of keyHeldBy.values()) m |= 1 << k;
+  if (m !== keyMask) { keyMask = m; send({ type: "keys", mask: m }); }
+  keys.forEach((k, i) => {
+    k.g.classList.toggle("held", !!(m & (1 << i)));
+    k.g.classList.toggle("latched", !!(keyLatched & (1 << i)));
+    const pressed = m & (1 << i) ? "true" : "false";
+    if (k.hit && k.hit.getAttribute("aria-pressed") !== pressed) k.hit.setAttribute("aria-pressed", pressed);
+  });
+}
+
+for (const b of Object.values(buttons)) {
+  b.hit.addEventListener("contextmenu", (e) => e.preventDefault());
+  b.hit.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (e.shiftKey || e.button === 2) { latched ^= 1 << b.bit; syncButtons(); return; }
+    if (latched & (1 << b.bit)) { latched &= ~(1 << b.bit); syncButtons(); return; }
+    b.hit.setPointerCapture(e.pointerId);
+    btnHeldBy.set("p" + e.pointerId, b.bit);
+    syncButtons();
+  });
+}
+keys.forEach((k, i) => {
+  k.hit.addEventListener("contextmenu", (e) => e.preventDefault());
+  k.hit.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    // Shift-click or right-click holds a key down until it is clicked again: chords with a mouse
+    if (e.shiftKey || e.button === 2) { keyLatched ^= 1 << i; syncKeys(); return; }
+    if (keyLatched & (1 << i)) { keyLatched &= ~(1 << i); syncKeys(); return; }
+    k.hit.setPointerCapture(e.pointerId);
+    keyHeldBy.set("p" + e.pointerId, i);
+    syncKeys();
+  });
+  // the strum plate: a finger that went down on a white key moves the held key as it slides
+  if (WHITE_K.includes(i)) k.hit.addEventListener("pointermove", (e) => {
+    const id = "p" + e.pointerId;
+    if (!keyHeldBy.has(id)) return;
+    for (const w of WHITE_K) {
+      const r = keys[w].hit.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top - 40 && e.clientY < r.bottom + 40) {
+        if (keyHeldBy.get(id) !== w) { keyHeldBy.set(id, w); syncKeys(); }
+        return;
+      }
+    }
+  });
+});
+function pointerUp(e) {
+  const id = "p" + e.pointerId;
+  if (btnHeldBy.delete(id)) syncButtons();
+  if (keyHeldBy.delete(id)) syncKeys();
+}
+const device = $("device");
+device.addEventListener("pointerup", pointerUp);
+device.addEventListener("pointercancel", pointerUp);
+device.addEventListener("lostpointercapture", pointerUp);
+
+function drawKnob(k) {
+  k.ind.setAttribute("transform", `rotate(${k.angle} ${k.x} ${k.y})`);
+}
+function turn(k, n) {
+  if (!n) return;
+  if (k.role === "master") {
+    master = Math.max(0, Math.min(4096, master + n * 64));
+    k.angle = -135 + 270 * master / 4096;
+    k.hit.setAttribute("aria-valuenow", masterPct());
+    k.hit.setAttribute("aria-valuetext", `${masterPct()} percent`);
+    send({ type: "master", value: master });
+  } else {
+    k.angle = (k.angle + n * 18) % 360;
+    send({ type: "enc", role: k.role, n });
+  }
+  drawKnob(k);
+}
+for (const k of Object.values(knobs)) {
+  if (k.role === "master") { k.angle = -135 + 270 * master / 4096; drawKnob(k); }
+  let drag = null, wheel = 0;
+  k.hit.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    k.hit.setPointerCapture(e.pointerId);
+    drag = { y: e.clientY, acc: 0 };
+  });
+  k.hit.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    drag.acc += drag.y - e.clientY;
+    drag.y = e.clientY;
+    const step = k.role === "master" ? 3 : 7;
+    const n = Math.trunc(drag.acc / step);
+    if (n) { drag.acc -= n * step; turn(k, n); }
+  });
+  const end = () => { drag = null; };
+  k.hit.addEventListener("pointerup", end);
+  k.hit.addEventListener("pointercancel", end);
+  k.hit.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+    if (Math.abs(dy) >= 50) { turn(k, dy < 0 ? 1 : -1); wheel = 0; return; }   // a mouse wheel notch: one detent
+    wheel -= dy;                                                                   // a trackpad: by distance
+    const n = Math.trunc(wheel / 25);
+    if (n) { wheel -= n * 25; turn(k, n); }
+  }, { passive: false });
+  k.hit.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const big = k.role === "master" ? 8 : 5;
+    const n = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: big, PageDown: -big }[e.key];
+    if (n) turn(k, n);
+    else if (k.role === "master" && (e.key === "Home" || e.key === "End")) turn(k, e.key === "End" ? 64 : -64);
+    else return;
+    e.preventDefault(); e.stopPropagation();
+  });
+}
+
+// a press from the keyboard lasts at least 50 ms: the firmware reads the buttons every 16 ms, and a quick tap must
+// not fall between two reads
+const downAt = new Map();
+function holdDown(id, kind, v) {
+  downAt.set(id, performance.now());
+  if (kind === "btn") { btnHeldBy.set(id, v); syncButtons(); } else { keyHeldBy.set(id, v); syncKeys(); }
+}
+function letGo(id) {
+  if (!btnHeldBy.has(id) && !keyHeldBy.has(id)) return;
+  const at = downAt.get(id), go = () => {
+    if (downAt.get(id) !== at) return;                // pressed again meanwhile
+    downAt.delete(id);
+    if (btnHeldBy.delete(id)) syncButtons();
+    if (keyHeldBy.delete(id)) syncKeys();
+  };
+  const wait = 50 - (performance.now() - (at ?? 0));
+  if (wait > 0) setTimeout(go, wait); else go();
+}
+// the keyboard on a focused button or key: Space or Enter holds it down while held; Shift+Enter keeps it down.
+// A screen reader's "activate" is a click with no pointer and no key before it: a short press
+for (const [c, kind] of [...Object.values(buttons).map((b) => [b, "btn"]), ...keys.map((k, i) => [k, i])]) {
+  c.hit.addEventListener("pointerdown", () => { c.pointerAt = performance.now(); });
+  c.hit.addEventListener("click", (e) => {
+    if (!node || performance.now() - (c.pointerAt || -1e9) < 2000) return;
+    if (kind === "btn" && latched & (1 << c.bit)) { latched &= ~(1 << c.bit); syncButtons(); return; }
+    if (kind !== "btn" && keyLatched & (1 << kind)) { keyLatched &= ~(1 << kind); syncKeys(); return; }
+    holdDown("t", kind === "btn" ? "btn" : "key", kind === "btn" ? c.bit : kind);
+    setTimeout(() => letGo("t"), 80);
+  });
+  c.hit.addEventListener("keydown", (e) => {
+    if ((e.key !== " " && e.key !== "Enter") || e.metaKey || e.ctrlKey || e.altKey) return;
+    e.preventDefault(); e.stopPropagation();
+    if (e.repeat || !node) return;
+    if (kind === "btn" && e.key === "Enter" && e.shiftKey) { latched ^= 1 << c.bit; syncButtons(); return; }
+    if (kind !== "btn" && e.key === "Enter" && e.shiftKey) { keyLatched ^= 1 << kind; syncKeys(); return; }
+    if (kind === "btn") {
+      if (latched & (1 << c.bit)) { latched &= ~(1 << c.bit); syncButtons(); return; }
+      holdDown("f" + e.key, "btn", c.bit);
+    } else {
+      if (keyLatched & (1 << kind)) { keyLatched &= ~(1 << kind); syncKeys(); return; }
+      holdDown("f" + e.key, "key", kind);
+    }
+  });
+  c.hit.addEventListener("keyup", (e) => letGo("f" + e.key));
+  c.hit.addEventListener("blur", () => {
+    let b = false, k = false;
+    for (const id of ["f ", "fEnter"]) { b = btnHeldBy.delete(id) || b; k = keyHeldBy.delete(id) || k; }
+    if (b) syncButtons();
+    if (k) syncKeys();
+  });
+}
+
+// shortcuts: single letters, only while the panel has focus, and they can be turned off
+const KEYMAP = {};
+"qwertyui".split("").forEach((c, i) => KEYMAP["Key" + c.toUpperCase()] = { key: WHITE_K[i] });
+"asdfghjk".split("").forEach((c, i) => KEYMAP["Key" + c.toUpperCase()] = { key: WHITE_K[8 + i] });
+"1234567890".split("").forEach((c, i) => KEYMAP["Digit" + c] = { key: BLACK_K[i] });
+KEYMAP.Minus = { key: BLACK_K[10] };
+Object.assign(KEYMAP, { KeyP: { btn: BTN.PLAY }, KeyO: { btn: BTN.REC }, Escape: { btn: BTN.HOME }, KeyZ: { btn: BTN["OCT-"] }, KeyX: { btn: BTN["OCT+"] } });
+const shortcuts = $("shortcuts");
+if (prefs.shortcuts === false) shortcuts.checked = false;
+shortcuts.addEventListener("change", () => { prefs.shortcuts = shortcuts.checked; savePrefs(); });
+controls.addEventListener("keydown", (e) => {
+  if (!node || !shortcuts.checked || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.code === "ArrowUp" || e.code === "ArrowDown") { turn(knobs.SELECT, e.code === "ArrowUp" ? 1 : -1); e.preventDefault(); return; }
+  const m = KEYMAP[e.code];
+  if (!m) return;
+  e.preventDefault();
+  if (e.repeat) return;
+  if (m.key !== undefined) holdDown("k" + e.code, "key", m.key);
+  else holdDown("k" + e.code, "btn", m.btn);
+});
+addEventListener("keyup", (e) => letGo("k" + e.code));
+function letGoKeys() {
+  for (const id of [...btnHeldBy.keys()]) if (id[0] === "k" || id[0] === "f") btnHeldBy.delete(id);
+  for (const id of [...keyHeldBy.keys()]) if (id[0] === "k" || id[0] === "f") keyHeldBy.delete(id);
+  syncButtons(); syncKeys();
+}
+addEventListener("blur", letGoKeys);
+controls.addEventListener("focusout", (e) => { if (!controls.contains(e.relatedTarget)) letGoKeys(); });
+
+// ---------------------------------------------------------------- screen and lights
+// The LCD's 240 x 240 picture is drawn into a hidden canvas, then into the visible one enlarged by a whole number
+// with no blending (every LCD pixel the same size), just past the size it is shown at in device pixels; the browser
+// blends that down to the screen. A plain stretch to a size that is not a multiple of 240 makes some pixel columns
+// wider than others.
+const screenEl = $("screen"), ctx = screenEl.getContext("2d");
+const lcd = document.createElement("canvas");
+lcd.width = lcd.height = 240;
+const lctx = lcd.getContext("2d"), img = lctx.createImageData(240, 240);
+function blitScreen() {
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(lcd, 0, 0, screenEl.width, screenEl.height);
+}
+function fitScreen() {
+  const px = screenEl.getBoundingClientRect().width * (window.devicePixelRatio || 1);
+  const n = 240 * Math.max(1, Math.ceil(px / 240 - 0.001));
+  if (screenEl.width !== n) { screenEl.width = screenEl.height = n; blitScreen(); }
+}
+new ResizeObserver(fitScreen).observe(screenEl);
+matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`).addEventListener("change", fitScreen);   // another display
+function drawScreen(fb) {
+  const d = img.data;
+  for (let i = 0; i < 240 * 240; i++) {
+    const v = fb[i], p = ((v >> 8) | (v << 8)) & 0xFFFF;
+    d[i * 4] = ((p >> 11) & 31) * 255 / 31;
+    d[i * 4 + 1] = ((p >> 5) & 63) * 255 / 63;
+    d[i * 4 + 2] = (p & 31) * 255 / 31;
+    d[i * 4 + 3] = 255;
+  }
+  lctx.putImageData(img, 0, 0);
+  blitScreen();
+}
+// a light's state in the control's name: "lit", or "blinking" when it changed three times in the last 2 s (PLAY
+// while the rhythm runs; a key pressed and let go is not blinking); the white keys light as their strings ring, which the ear says better
+function lightName(c, lit, now) {
+  if (c.wasLit === undefined) c.wasLit = lit;
+  if (lit !== c.wasLit) { c.wasLit = lit; c.changes = [...(c.changes || []).filter((t) => now - t < 2000), now]; }
+  const recent = (c.changes || []).filter((t) => now - t < 2000).length;
+  const state = recent >= 3 ? "blinking" : lit ? "lit" : "";
+  if (state !== c.light) { c.light = state; c.hit.setAttribute("aria-label", c.name + (state ? `, ${state}` : "")); }
+}
+function drawLights(b, k) {
+  const now = performance.now();
+  for (const x of Object.values(buttons)) {
+    const lit = !!(b & (1 << x.bit));
+    x.g.classList.toggle("lit", lit);
+    lightName(x, lit, now);
+  }
+  keys.forEach((x, i) => {
+    const lit = !!(k & (1 << i));
+    x.g.classList.toggle("lit", lit);
+    if (BLACK_K.includes(i)) lightName(x, lit, now);
+  });
+}
+
+// ---------------------------------------------------------------- the screen in words (fm1-reader)
+// The firmware tells a reader what its screen shows (fm1-reader's PROTOCOL.md: SysEx F0 7D 53 52 cmd ... F7). Here
+// the reader is this page: HELLO every 2 s through the emulator (web_sysex), SAY frames back (web_said_buf), put in
+// words with fm1-reader's words.js and the app's words file, then read by the computer's screen reader (a live region)
+// or by the built-in voice (tts.js, eSpeak NG).
+const SR_HELLO = [0x7d, 0x53, 0x52, 1, 1], SR_BYE = [0x7d, 0x53, 0x52, 2], SR_WHERE = [0x7d, 0x53, 0x52, 3];
+const speakMode = () => document.querySelector('input[name="speak"]:checked').value;
+if (prefs.speakOpen) $("speak").open = true;
+$("speak").addEventListener("toggle", () => { prefs.speakOpen = $("speak").open; savePrefs(); });
+if (["sr", "voice", "off"].includes(prefs.speak)) document.querySelector(`input[name="speak"][value="${prefs.speak}"]`).checked = true;
+let helloTimer = null, heard = false, said = false, words = [], wordsReady = null, chain = Promise.resolve();
+let spoken = (s) => s, tts = null, ttsReady = null, last = null, liveFlip = false, keeping = 0;
+const wordsLib = import("./reader/words.js").then((m) => { spoken = m.spoken; return m; }).catch(() => null);
+function sysex(bytes) { send({ type: "sysex", bytes }); }
+function readerOn() {
+  if (!node || helloTimer || speakMode() === "off") return;
+  heard = said = false;
+  sysex(SR_HELLO);
+  helloTimer = setInterval(() => sysex(SR_HELLO), 2000);
+}
+function readerOff() {
+  if (!helloTimer) return;
+  clearInterval(helloTimer);
+  helloTimer = null;
+  sysex(SR_BYE);
+  $("where").disabled = $("again").disabled = true;
+  $("said").textContent = "";
+}
+// the words file: the one the firmware names, from this site (../words/, the same file the link points at)
+async function loadWords(link) {
+  const file = (link.match(/[^/]+\.json$/) || [""])[0];
+  const lib = await wordsLib;
+  if (!lib || !file) return [];
+  for (const url of [`../words/${file}`, link]) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) return lib.wordsOf(await r.json());
+    } catch { /* offline, or not published yet: the next */ }
+  }
+  return [];
+}
+function speak(text, now, keep) {
+  last = { text, now, keep };
+  $("said").textContent = text;
+  $("again").disabled = false;
+  if (speakMode() === "voice") {
+    if (!tts) return;
+    const p = tts.speak(text, { interrupt: now && !keeping });
+    if (keep) { keeping++; p.then(() => keeping--); }
+  } else if (speakMode() === "sr") {
+    // the same words twice in a row are not read again by some screen readers: alternate the text
+    liveFlip = !liveFlip;
+    (now || keep ? $("live-a") : $("live-p")).textContent = text + (liveFlip ? "" : " ");
+  }
+}
+function onSaid(bytes) {
+  for (let i = 0; i < bytes.length; i++) {
+    if (bytes[i] !== 0xf0) continue;
+    const end = bytes.indexOf(0xf7, i);
+    if (end < 0) break;
+    const f = bytes.subarray(i + 1, end);
+    i = end;
+    if (f[0] !== 0x7d || f[1] !== 0x53 || f[2] !== 0x52) continue;
+    const str = (d) => String.fromCharCode(...d.filter((b) => b < 128));
+    if (f[3] === 1 && !heard) {                                     // HELLO: the name, and the words file's link
+      heard = true;
+      const [name, link = ""] = str(f.subarray(5)).split("\0");
+      wordsReady = loadWords(link).then((w) => { words = w; });
+      $("where").disabled = false;
+      // the first HELLO brings the whole screen by itself; if it doesn't come, ask for it
+      setTimeout(() => { if (!said && helloTimer) sysex(SR_WHERE); }, 400);
+    } else if (f[3] === 16) {                                       // SAY: flags, the screen's text
+      said = true;
+      const flags = f[4], screen = str(f.subarray(5));
+      chain = chain.then(() => wordsReady).then(() => speak(spoken(screen, words), !!(flags & 1), !!(flags & 2)));
+    }
+  }
+}
+async function voiceOn() {
+  if (!ttsReady) ttsReady = import("./reader/tts.js").then((m) => m.createTTS()).then((t) => (tts = t))
+    .catch(() => { showAlert("The built-in voice could not start in this browser. Choose System screen reader."); ttsReady = null; });
+  const t = await ttsReady;
+  if (t) t.unlock();
+}
+document.querySelectorAll('input[name="speak"]').forEach((r) => r.addEventListener("change", () => {
+  prefs.speak = speakMode(); savePrefs();
+  if (tts && speakMode() !== "voice") tts.stop();
+  if (speakMode() === "voice") voiceOn().then(() => tts && tts.speak("Voice on"));
+  if (speakMode() === "off") readerOff(); else readerOn();
+}));
+$("where").addEventListener("click", () => sysex(SR_WHERE));
+$("again").addEventListener("click", () => last && speak(last.text, true, last.keep));
+
+// ---------------------------------------------------------------- storage
+function loadStore() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"), out = {};
+    for (const [o, b64] of Object.entries(raw)) out[o] = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer;
+    return out;
+  } catch { return {}; }
+}
+function saveStore(store) {
+  try {
+    const raw = {};
+    for (const [o, u8] of Object.entries(store)) { let s = ""; for (const c of u8) s += String.fromCharCode(c); raw[o] = btoa(s); }
+    localStorage.setItem(STORE_KEY, JSON.stringify(raw));
+  } catch { /* storage unavailable: this session only */ }
+}
+
+// ---------------------------------------------------------------- switching on
+const status = $("status"), cpu = $("cpu");
+let appPart = null;
+function showAlert(t) { $("alert").textContent = t; }
+async function switchOn() {
+  const go = $("go");
+  go.disabled = true;
+  go.textContent = "Starting…";
+  status.textContent = "Starting…";
+  try {
+    const ac = new AudioContext({ sampleRate: 44100, latencyHint: "interactive" });
+    if (speakMode() === "voice") voiceOn();
+    const wasm = Uint8Array.from(atob(document.getElementById("firmware").textContent.trim()), (c) => c.charCodeAt(0)).buffer;
+    await ac.audioWorklet.addModule("data:text/javascript;base64," + btoa(unescape(encodeURIComponent(WORKLET))));
+    node = new AudioWorkletNode(ac, "fm1", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
+    gain = ac.createGain();
+    gain.gain.value = $("mute").getAttribute("aria-pressed") === "true" ? 0 : 1;
+    node.connect(gain).connect(ac.destination);
+    const ready = new Promise((res) => {
+      node.port.onmessage = (e) => {
+        const m = e.data;
+        if (m.type === "ready") res();
+        else if (m.type === "frame") {
+          if (m.fb) drawScreen(m.fb);
+          drawLights(m.buttons, m.keys);
+          if (m.said) onSaid(m.said);
+          window.emuLast = m;
+          if (m.load !== undefined) cpu.textContent = `Markov Dreams uses ${m.load}% of this computer's time`;
+          if (m.store) saveStore(m.store);
+        } else if (m.type === "app" && appPart && appPart.message) appPart.message(m);
+      };
+    });
+    // the app's own part of the page (APP_DIR/web/emu/app.js), if it has one: attach({ node, ac, status }), and
+    // message(m) for the worklet's { type: "app" } messages
+    appPart = null;
+    if (appPart && appPart.attach) appPart.attach({ node, ac, status: (t) => showAlert(t) });
+    node.port.postMessage({ type: "load", wasm, store: loadStore(), master }, [wasm]);
+    await ready;
+    await ac.resume();
+    $("start").hidden = true;
+    controls.inert = false;
+    status.textContent = ac.sampleRate === 44100 ? "On." : `On (the browser runs audio at ${ac.sampleRate} Hz).`;
+    syncButtons(); syncKeys();
+    readerOn();
+    knobs.MASTER.hit.focus();                  // the switch is gone: on to the panel
+  } catch (err) {
+    node = null;
+    go.disabled = false;
+    go.textContent = "Switch on";
+    status.textContent = "Off.";
+    showAlert("Could not start: " + (err && err.message || err) + ". Chrome, Edge, Firefox and Safari should all work.");
+  }
+}
+$("go").addEventListener("click", switchOn);
+$("mute").addEventListener("click", () => {
+  const on = $("mute").getAttribute("aria-pressed") !== "true";
+  $("mute").setAttribute("aria-pressed", on ? "true" : "false");
+  if (gain) gain.gain.value = on ? 0 : 1;
+});
+$("reset").addEventListener("click", () => {
+  if ($("reset").dataset.armed) {
+    try { localStorage.removeItem(STORE_KEY); } catch {}
+    location.reload();
+  } else {
+    $("reset").dataset.armed = "1";
+    $("reset").textContent = "Press again to forget everything";
+  }
+});
+</script>
+</body>
+</html>

@@ -22,19 +22,6 @@ wait 300
 expect field_density 1000
 expect field_size 1000
 shot full-live.png
-tap FX
-spin K1 -100
-spin K2 -100
-wait 300
-expect field_density 0
-expect field_size 0
-shot small-grains.png
-spin K1 100
-spin K2 100
-wait 300
-expect field_density 1000
-expect field_size 1000
-shot long-grains.png
 tap GLO
 tap GLO
 tap GLO
