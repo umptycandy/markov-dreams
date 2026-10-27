@@ -27,7 +27,16 @@ typedef struct {
  /* v7 tail; the complete 1292-byte v6 prefix remains readable. */
  md_sequence sequence[6]; int32_t grain_noise,chord_pattern,chord_bars,chord_tracks;
 } md_patch;
-typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6]; } md_stats;
+typedef struct { uint32_t frames,step,events[6],dropped_commands,nonfinite; float peak; uint32_t grain_writes,voice_quanta,skipped_quanta; int32_t last_note[6]; uint32_t quality_reductions,element_modes; float track_peak[6];
+ uint32_t bars_applied; float step_phase; /* MARKOV DREAMS: bars taken from md_queue_bar; 0..1 through the current step */ } md_stats;
+/* MARKOV DREAMS: one generated 16-step bar. Tracks in mask take it at the next
+ * bar line: their sequence becomes these 16 steps at clock division 1. len is
+ * a note's length in steps (gate spans it); flags hold a ratchet count (1-7)
+ * or a chip arpeggio that cycles the pitch at 50 Hz without retriggering. */
+enum { MD_BAR_RATCHET=7, MD_BAR_ARP=8, MD_BAR_ARP_MAJOR=16, MD_BAR_ARP_FLAT5=32, MD_BAR_ARP_OCTAVE=64 };
+typedef struct { uint8_t mask; uint8_t len[6][16]; uint8_t flags[6][16]; md_step steps[6][16]; } md_bar;
+void md_queue_bar(const md_bar *bar); /* control side, under plat_lock(); replaces any bar not yet applied */
+int md_bar_pending(void);
 void md_init(void);
 int md_command(int command,int track,int value);
 unsigned md_command_space(void);

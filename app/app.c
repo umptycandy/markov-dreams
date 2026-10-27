@@ -51,6 +51,7 @@ static int md_context_help(void){
 static int dream_cmd(int c,int t,int v){uint32_t f=plat_lock();int r=md_command(c,t,v);plat_unlock(f);return r;}
 static int dream_install(const void *,unsigned);
 #include "banks.c"
+#include "brain.c"
 static void md_num(int v,char *s) {char b[12];int i=0;if(v<0){*s++='-';v=-v;}do{b[i++]='0'+v%10;v/=10;}while(v);while(i)*s++=b[--i];*s=0;}
 static void md_note_label(int note,char *s){
  static const char *names[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};

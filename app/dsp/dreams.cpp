@@ -69,8 +69,12 @@ static void next_defaults(md_patch &p){
 static void extension_defaults(md_patch &p){p.version=7;p.delay_ms=200;p.delay_fb=300;p.reverb_time=450;p.fx_level=0;memset(p.ext,0,sizeof p.ext);for(int i=0;i<6;i++){p.ext[i].tides_rate=250;for(int j=0;j<16;j++)p.ext[i].notes[j]=(j%4==0?0:j%4==2?7:-1);}next_defaults(p);}
 
 struct Grain { float pos,phase,inc,pan,rate,gain; unsigned life,age; };
-struct Repeat { float left,spacing,note,velocity; unsigned remaining; };
+struct Repeat { float left,spacing,note,velocity; unsigned remaining; int8_t arp[4]; uint8_t arp_n,arp_i; };
 static Repeat repeats[6];
+/* MARKOV DREAMS bar mailbox: the app's brain writes a bar, tick() takes it at the bar line. */
+static md_bar pending_bar;static volatile int pending_valid;
+static uint8_t bar_len[6][16],bar_flags[6][16],bar_tracks;
+static float step_duration=1;
 static Grain grains[4];
 static md_patch patch,previous;
 static md_stats stats;
@@ -190,7 +194,7 @@ static void scene(int id) {
    for(int k=0;k<16;k++){int off=phrases[(id-77)%4][k];q.steps[k]={(uint8_t)(off<0?0:bound(md_quantize(patch.track[i].note+off,patch.root,patch.scale),24,96)),(uint8_t)(k==0?78:62+(k*3+id)%14),100,(uint8_t)(72+(k*7)%25)};}break;
   }
  }
- band_layout(patch);
+ band_layout(patch);bar_tracks=0;pending_valid=0;
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
 }
@@ -327,7 +331,15 @@ static void apply(Command e) {
  }
 }
 static void tick() {
- float duration=MD_RATE*60.0f/(patch.tempo*4.0f)*(1+(step%2?-1:1)*unit(patch.swing)*.5f);
+ float duration=MD_RATE*60.0f/(patch.tempo*4.0f)*(1+(step%2?-1:1)*unit(patch.swing)*.5f);step_duration=duration;
+ if((step%16)==0&&pending_valid){
+  for(unsigned i=0;i<6;i++)if(pending_bar.mask&(1u<<i)){
+   md_sequence &q=patch.sequence[i];q.enabled=1;q.length=16;q.edit=0;memcpy(q.steps,pending_bar.steps[i],sizeof pending_bar.steps[i]);
+   patch.track[i].speed=1;patch.track[i].prob=1000;patch.chord_tracks&=~(1u<<i);
+   memcpy(bar_len[i],pending_bar.len[i],16);memcpy(bar_flags[i],pending_bar.flags[i],16);
+  }
+  bar_tracks|=pending_bar.mask;pending_valid=0;stats.bars_applied++;
+ }
  if((step%32)==0) {if(patch.locked)seqrng=patch.seed;else patch.seed=random_word(seqrng)|1;}
  static const int degree[7]={0,2,3,5,7,10,12};
  for(unsigned i=0;i<6;i++) {
@@ -339,11 +351,21 @@ static void tick() {
   if(sq.enabled){const md_step &st=sq.steps[local%sq.length];
    if(st.note&&st.velocity&&!t.mute&&roll%100<st.chance&&(roll/100)%1000<(unsigned)t.prob){
     int note=st.note;if(t.model>=MD_FM){if(patch.chord_tracks&(1u<<i))note+=chord_offset();note=md_quantize(note+patch.transpose,patch.root,patch.scale);}
-    fire(i,note,st.velocity*.01f);if(md_has_envelope(t.model)){
+    fire(i,note,st.velocity*.01f);
+    const unsigned at=local%16;const bool brain=((bar_tracks>>i)&1)&&sq.length==16;
+    if(md_has_envelope(t.model)){
      // Swing alternates every tick. A slow track spans whole pairs, with only
      // one extra long/short tick for odd speeds; do not multiply the swing.
      float span=MD_RATE*60.0f/(patch.tempo*4.0f)*(t.speed+(t.speed%2?(step%2?-1:1)*unit(patch.swing)*.5f:0));
-     voices[i].midi_gate=1;seq_gate[i]=span*st.gate*.01f;
+     voices[i].midi_gate=1;seq_gate[i]=span*st.gate*.01f*(brain&&bar_len[i][at]>1?bar_len[i][at]:1);
+    }
+    if(brain){const unsigned f=bar_flags[i][at],r=f&MD_BAR_RATCHET;
+     if(f&MD_BAR_ARP){
+      // Chip arpeggio: the pitch steps through the chord at 50 Hz, one attack.
+      Repeat &a=repeats[i];a=Repeat();a.spacing=a.left=MD_RATE/50.0f;a.note=(float)note;a.velocity=st.velocity*.01f;
+      a.remaining=(unsigned)(duration*(bar_len[i][at]?bar_len[i][at]:1)/a.spacing);
+      a.arp[0]=0;a.arp[1]=f&MD_BAR_ARP_MAJOR?4:3;a.arp[2]=f&MD_BAR_ARP_FLAT5?6:7;a.arp[3]=12;a.arp_n=f&MD_BAR_ARP_OCTAVE?4:3;
+     }else if(r>1)repeats[i]={duration/r,duration/r,(float)note,st.velocity*.01f,r-1};
     }
    }continue;
   }
@@ -724,17 +746,20 @@ void md_render(float *lr,unsigned n) {
   if(playing){
    if(!clock_source&&untilstep<=0)tick();
    for(unsigned i=0;i<6;i++)if(repeats[i].remaining&&repeats[i].left<=0){
-    if(!patch.track[i].mute)fire(i,repeats[i].note,repeats[i].velocity);
+    if(repeats[i].arp_n){Repeat &a=repeats[i];a.arp_i=(a.arp_i+1)%a.arp_n;voices[i].note=voices[i].target_note=a.note+a.arp[a.arp_i];}
+    else if(!patch.track[i].mute)fire(i,repeats[i].note,repeats[i].velocity);
     repeats[i].remaining--;repeats[i].left+=repeats[i].spacing;
    }
    unsigned to=(!clock_source&&untilstep>0)?(unsigned)ceilf(untilstep):0;if(to&&z>to)z=to;
    for(unsigned i=0;i<6;i++)if(repeats[i].remaining){to=(unsigned)ceilf(repeats[i].left);if(to&&z>to)z=to;}
   }
-  if(playing){untilstep-=z;for(unsigned i=0;i<6;i++)if(repeats[i].remaining)repeats[i].left-=z;}
+  if(playing){untilstep-=z;for(unsigned i=0;i<6;i++)if(repeats[i].remaining)repeats[i].left-=z;stats.step_phase=fminf(1.f,fmaxf(0.f,1-untilstep/step_duration));}
   if(clock_source&&playing){clock_age+=z;if(clock_age>MD_RATE*2){playing=0;record_mode=0;record_note=record_step=-1;memset(repeats,0,sizeof repeats);}}
   quantum(lr,z);for(unsigned i=0;i<6;i++)if(seq_gate[i]>0){seq_gate[i]-=z;if(seq_gate[i]<=0)voices[i].midi_gate=-1;}lr+=z*2;n-=z;
  }
 }
+void md_queue_bar(const md_bar *b){pending_bar=*b;pending_valid=1;}
+int md_bar_pending(void){return pending_valid;}
 const md_patch *md_state(){return &patch;}const md_stats *md_status(){return &stats;}int md_playing(){return playing;}
 int md_validate(const md_patch *p) {
  if(!p||p->magic!=0x4D445231||p->version!=7||!p->seed||p->tempo<30||p->tempo>220)return 0;
@@ -753,7 +778,7 @@ int md_validate(const md_patch *p) {
   for(const md_step &s:q.steps)if((s.note&&(s.note<24||s.note>96))||s.velocity<1||s.velocity>100||s.chance>100||s.gate<1||s.gate>100)return 0;}
  return 1;
 }
-int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
+int md_load(const md_patch *p){if(playing||!md_validate(p))return 0;patch=*p;bar_tracks=0;pending_valid=0;previous=patch;seqrng=patch.seed;clear_audio();for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);for(int i=0;i<6;i++)reset_voice(i);return 1;}
 unsigned md_memory_bytes(){return sizeof element_body+sizeof element_strike+sizeof echo+sizeof room+sizeof room_diffusion+sizeof diffusion_head+sizeof voices_raw+sizeof tape+sizeof grains+sizeof patch+sizeof previous+sizeof stats+sizeof queue+sizeof repeats+512;}
 int md_decode(md_patch *out,const void *data,unsigned bytes){
  if(!out||!data)return 0;

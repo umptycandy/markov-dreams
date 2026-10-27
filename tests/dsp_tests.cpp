@@ -77,6 +77,25 @@ int main(){
   assert(!(q->edited_mask&1)&&q->duck_source<6);
  }
  printf("PASS %d kits load in the band layout DRM x3 / BAS / LED / CHD\n",MD_BIOMES);
+ // MARKOV DREAMS bar mailbox: a queued bar lands at the bar line, with ratchets, long notes and chip arps.
+ {
+  md_init();md_command(MD_SCENE,0,5);render(1);md_bar bar;memset(&bar,0,sizeof bar);bar.mask=63;
+  for(int i=0;i<6;i++)for(int s=0;s<16;s++){bar.steps[i][s]={0,80,100,50};bar.len[i][s]=1;}
+  for(int s=0;s<16;s+=4)bar.steps[0][s]={36,96,100,60};
+  bar.steps[2][2]={60,70,100,60};bar.flags[2][2]=3;
+  bar.steps[3][0]={40,90,100,92};bar.len[3][0]=2;
+  bar.steps[4][0]={64,90,100,92};bar.flags[4][0]=MD_BAR_ARP|MD_BAR_ARP_OCTAVE;
+  bar.steps[5][0]={57,90,100,92};bar.len[5][0]=8;bar.flags[5][0]=MD_BAR_ARP|MD_BAR_ARP_MAJOR;
+  md_queue_bar(&bar);assert(md_bar_pending());unsigned before=md_status()->bars_applied;
+  md_command(MD_PLAY,0,1);double energy=0;
+  for(int b=0;b<700;b++){md_render(out,128);for(float x:out){assert(std::isfinite(x));energy+=x*x;}}
+  assert(!md_bar_pending()&&md_status()->bars_applied==before+1);
+  const md_patch *q=md_state();assert(md_validate(q));
+  for(int i=0;i<6;i++){assert(q->sequence[i].enabled&&q->sequence[i].length==16&&q->track[i].speed==1);}
+  assert(q->sequence[0].steps[4].note==36&&q->sequence[5].steps[0].note==57&&energy>1e-4);
+  assert(md_status()->step_phase>=0&&md_status()->step_phase<=1);
+  puts("PASS bar mailbox: applied at the bar line, ratchet / long note / chip arp, patch stays valid");
+ }
  for(int id=0;id<MD_TONE_PRESETS;id++){
   md_init();md_command(MD_SCENE,0,MD_BLANK_BIOME);render(1);md_track before=md_state()->track[0];md_command(MD_TONE_PRESET,0,id);render(1);const md_track &t=md_state()->track[0];
   assert(t.model==md_tone_model(id)&&md_state()->tone_preset[0]==id&&md_validate(md_state()));
