@@ -17,9 +17,10 @@ Misha is comfortable with HTML/JS but not deeply experienced with C/C++ or CLI t
   python3 tools/package_web.py            # writes app/build/browser/index.html (one self-contained file)
   ```
   Serve `app/build/browser/` over HTTP to test. Don't open `web/index.html` directly (it is a template).
-  The page is the FM-1 panel simulator from fm1-base, relabelled. The old 1.2 release page is kept in `web/legacy/`.
+  The page uses the prototype's panel layout (`reference/markov-sid/prototype.html`): wide on a computer, panel over a full-width keyboard in portrait on a phone. All sound and screen pixels come from the firmware. The old 1.2 release page is kept in `web/legacy/`.
 - Native DSP checks: `python3 tools/build_local.py dsp --sanitize` then `app/build/san/dsp-tests` (needs `libclang-rt-18-dev` on Ubuntu; the setup script installs it).
-- UI checks: `python3 tools/build_local.py host` then `app/build/native/mutable-dreams-host tests/ui.txt OUTDIR` (also `next_ui`, `mellow_ui`, `evolution-ui`, `landscape-ui`, `reactive-ui`). `shot FILE.png` lines save screenshots.
+- UI check: `python3 tools/build_local.py host` then `app/build/native/mutable-dreams-host tests/markov_ui.txt OUTDIR` (the whole Markov Dreams workflow; `shot FILE.png` lines save screenshots). The 1.2 UI scripts are kept, not run, in `tests/legacy-1.2/`.
+- Browser engine checks: `node tests/web_engine.mjs`, `node tests/web_storage.mjs` (after the web build).
 - Published builds: `.github/workflows/browser-build.yml` builds every push into the `gh-pages` branch: `https://umptycandy.github.io/markov-dreams/builds/<branch>/`, and `main` is also the front page.
 - Device firmware: needs the JieLi Linux pi32v2 toolchain + AC79NN SDK V1.2.1 (see BUILDING.md). Plan: build it in **GitHub Actions on ubuntu** later, not now.
 - **Never remove the OTA/update path.** The FM-1 has no recovery button; firmware must stay re-flashable over USB MIDI SysEx.
@@ -27,7 +28,9 @@ Misha is comfortable with HTML/JS but not deeply experienced with C/C++ or CLI t
 
 ## Where things are
 - `app/dsp/dreams.cpp` / `dreams.h`: 6-track engine, sequencing (`md_sequence`, 32 steps, 4 generators), shared grain cloud, delay, room. Everything is driven through `md_command(cmd, track, value)`.
-- `app/app.c`: UI, buttons (`md_tap`), encoders (`app_input_only`), screen drawing.
+- `app/app.c`: platform glue, input loop (`app_input_only`), intro/help cards, and the hidden 1.2 pages.
+- `app/markov.c`: the Markov Dreams surface: main / sound / global pages, pop-ups, track buttons, TEACH / FREEZE / ARP, key lights, and scheduling one bar ahead.
+- `app/brain.c`: the Markov brain (port of `brain.js`): fixed tables, presets, `br_generate`, `br_to_md`. Bars reach the engine through `md_queue_bar()` in dreams.cpp (applied at the bar line; ratchets, long notes and 50 Hz chip arps).
 - `web/`: browser shell and worklet. `presets/`: biomes/tones.
 - `reference/markov-sid/`: the browser prototype this design comes from. `brain.js` is the Markov brain to port, and `prototype.html` is the full playable prototype with the control layout.
 
@@ -71,8 +74,8 @@ Verified (step 1): factory biomes order their tracks freely (bass is usually tra
 ## Working style
 - One step at a time. After each step: build the browser version, run the DSP checks, summarise what changed in plain English, and push a branch.
 - Suggested order:
-  1. Rename/identity + 4-button track mapping + simplified main screen.
-  2. Knob/global/hold-to-edit mapping + CLOUD simplification.
-  3. Markov brain port + TEACH + FREEZE.
+  1. Rename/identity + 4-button track mapping + simplified main screen. (done)
+  2. Knob/global/hold-to-edit mapping + CLOUD simplification. (done)
+  3. Markov brain port + TEACH + FREEZE. (done; brains live in RAM until power off)
   4. Tuning brains and biomes for the warmer sound.
   5. Device build in CI.

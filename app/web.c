@@ -13,6 +13,9 @@ EXPORT void dream_track(int t){dream_ui.track=clamp(t,0,5);dream_ui.dirty=1;}
 EXPORT int dream_value(int c,int t){const md_patch *p=md_state();const md_track *v=&p->track[clamp(t,0,5)];switch(c){case 107:return dream_ui.octave;case 108:return dream_ui.help;case 109:return md_status()->last_note[clamp(t,0,5)];case 110:return md_status()->events[clamp(t,0,5)];case 100:return dream_ui.page;case 101:return dream_ui.track;case 102:return p->edited_mask;case 103:return dream_prefs.motion;case 104:return dream_prefs.boot_sound;case MD_SCENE:return p->biome_id;case MD_TONE_PRESET:return p->tone_preset[clamp(t,0,5)];case MD_MODEL:return v->model;case MD_MUTE:return v->mute;case MD_MACRO:return p->macro[clamp(t,0,3)];case MD_PLAY:return md_playing();case MD_TEMPO:return p->tempo;case MD_LOCK:return p->locked;case MD_FREEZE:return p->freeze;case MD_QUALITY:return p->quality;default:return 0;}}
 
 EXPORT const char *dream_bank_name(void){return bank_name;}
+/* MARKOV DREAMS: what the knobs do now (0 main, 1 global, 2 sound page) and the dim key lights. */
+EXPORT int dream_mk_page(void){return mk_edit_track()>=0?2:mk.global?1:0;}
+EXPORT uint32_t dream_mk_keys_dim(void){return mk_keys_dim;}
 EXPORT int dream_knob(int page,int track,int knob){
  const md_patch *p=md_state();const md_track *t=&p->track[clamp(track,0,5)];int k=clamp(knob,0,3);
  const md_extension *e=&p->ext[clamp(track,0,5)];

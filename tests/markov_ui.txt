@@ -1,0 +1,117 @@
+# MARKOV DREAMS workflow (after reference/markov-sid/prototype.html)
+wait 3400
+shot mk-main-stopped.png
+tap PLAY
+wait 2600
+expect playing 1
+expect bars_applied >0
+expect seq_on 6
+shot mk-main.png
+# Tap a track button to select it; hold it to shape its sound.
+tap SEL
+expect track 3
+press ENV
+wait 200
+expect edit 4
+spin K2 4
+wait 50
+shot mk-sound-lead.png
+release ENV
+wait 50
+expect edit -1
+expect track 4
+# DRM again steps kick > snare > hat.
+tap FX
+expect track 0
+tap FX
+expect track 1
+tap FX
+expect track 2
+tap FX
+expect track 0
+# Long press without turning keeps the sound page open; tap to close.
+press LFO
+wait 600
+release LFO
+expect edit 5
+wait 100
+shot mk-sound-latched.png
+tap LFO
+expect edit -1
+# Main knobs: WILD DENSITY TONE CLOUD. CLOUD feeds lead and chords only.
+spin K4 8
+wait 50
+expect bass_send 0
+expect cloud_send >300
+# GLO: SWING ROOT SCALE PUMP.
+tap GLO
+expect global 1
+spin K2 2
+wait 100
+shot mk-global.png
+tap GLO
+expect global 0
+# KIT, BRAIN and TEMPO pop-ups.
+spin PRESET 3
+wait 300
+shot mk-kit.png
+expect biome 3
+expect seq_on 6
+spin ALGO 1
+wait 100
+expect brain 1
+shot mk-brain.png
+spin SELECT 4
+wait 50
+expect tempo >70
+# ARP on the lead, FREEZE.
+tap ENV
+tap ARP
+expect arp 0
+tap ARP
+expect arp 1
+tap SEQ
+expect frozen 1
+tap SEQ
+expect frozen 0
+# TEACH: choose BLANK, teach a bass riff over two bars, then let it improvise.
+spin ALGO 3
+expect brain 4
+tap SEL
+tap REC
+expect teach 1
+wait 200
+tapkey 7
+wait 230
+tapkey 10
+wait 230
+tapkey 12
+wait 230
+tapkey 7
+wait 900
+shot mk-teach.png
+tapkey 7
+wait 230
+tapkey 14
+wait 1500
+tap REC
+expect teach 0
+expect taught_bars >0
+wait 3000
+expect invalid 0
+expect queue_drops 0
+shot mk-improvise.png
+tap PLAY
+expect playing 0
+# Hold a non-track button for its help card.
+press GLO
+wait 900
+expect help 5
+shot mk-help.png
+release GLO
+tap HOME
+expect help -1
+# SAVE while stopped keeps the kit and knobs.
+tap SAVE
+wait 100
+shot mk-saved.png

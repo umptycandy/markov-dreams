@@ -194,7 +194,7 @@ static void scene(int id) {
    for(int k=0;k<16;k++){int off=phrases[(id-77)%4][k];q.steps[k]={(uint8_t)(off<0?0:bound(md_quantize(patch.track[i].note+off,patch.root,patch.scale),24,96)),(uint8_t)(k==0?78:62+(k*3+id)%14),100,(uint8_t)(72+(k*7)%25)};}break;
   }
  }
- band_layout(patch);bar_tracks=0;pending_valid=0;
+ band_layout(patch);bar_tracks=0; /* a queued brain bar still applies to the new kit */
  clear_audio();for(int i=0;i<6;i++){reset_voice(i);}for(int j=0;j<4;j++)smooth[j]=unit(patch.macro[j]);
  previous=patch;step=0;untilstep=0;seqrng=patch.seed;
 }
